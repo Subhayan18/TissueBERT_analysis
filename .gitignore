@@ -1,0 +1,13 @@
+# Directories to ignore
+log/
+logs/
+results/
+Results/
+result/
+Result/
+
+# File extensions to ignore
+*.out
+*.err
+.DS_Store
+._.DS_Store
