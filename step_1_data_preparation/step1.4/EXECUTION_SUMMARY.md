@@ -42,7 +42,7 @@ I've created **5 modular Python scripts** + **1 README** + **1 SLURM script** fo
 **Full Run (119 samples):**
 - **Wall time**: 3-5 hours with 40 CPU cores
 - **Output size**: ~300 GB
-- **Files created**: ~30.4 million .npz files
+- **Files created**: ~595 .npz files (119 samples × 5 augmentations)
 
 ## 🚀 How to Run
 
@@ -66,7 +66,7 @@ python3 create_training_dataset.py --test
 ```
 
 **Expected output:**
-- ~1.3 million files
+- ~25 files
 - ~10 GB storage
 - Verify everything works before full run
 
@@ -88,13 +88,13 @@ python3 create_training_dataset.py
 ```
 /home/chattopa/data_storage/MethAtlas_WGBSanalysis/
 └── training_dataset/
-    ├── all_data/                           # ~30.4M .npz files
-    │   ├── sample_000_Adipocytes_chr1_273383_273777_aug0.npz
-    │   ├── sample_000_Adipocytes_chr1_273383_273777_aug1.npz
-    │   ├── sample_000_Adipocytes_chr1_273383_273777_aug2.npz
-    │   ├── sample_000_Adipocytes_chr1_273383_273777_aug3.npz
-    │   ├── sample_000_Adipocytes_chr1_273383_273777_aug4.npz
-    │   └── ... (30.4 million total)
+    ├── all_data/                           # ~595 .npz files
+    │   ├── sample_064_Bone_aug0.npz
+    │   ├── sample_064_Bone_aug1.npz
+    │   ├── sample_064_Bone_aug2.npz
+    │   ├── sample_064_Bone_aug3.npz
+    │   ├── sample_064_Bone_aug4.npz
+    │   └── ... (595 files total, each ~500 MB)
     ├── metadata.csv                        # Summary of all files
     └── logs/
         └── training_dataset_TIMESTAMP.log  # Execution log
@@ -104,11 +104,13 @@ python3 create_training_dataset.py
 
 ```python
 {
-    'dna_tokens': np.int32[150],        # 3-mer token IDs
-    'methylation': np.uint8[150],       # Methylation pattern
-    'tissue_label': np.float32[39],     # One-hot tissue label
-    'n_reads': int,                     # Number of reads
-    'avg_coverage': int                 # Average coverage
+    'dna_tokens': np.int32[51089, 150],      # All regions × sequence length
+    'methylation': np.uint8[51089, 150],     # All regions × sequence length
+    'tissue_label': np.float32[119],         # One-hot tissue label
+    'region_ids': np.array[51089],           # Region identifiers
+    'n_reads': np.int32[51089],              # Reads per region
+    'sample_name': str,                      # Sample identifier
+    'tissue_name': str                       # Tissue type name
 }
 ```
 
@@ -232,7 +234,7 @@ EXECUTION SUMMARY
 Total samples processed: 119
 Total regions processed: 6,079,591
 Total augmentations created: 30,397,955
-Total files created: 30,397,955
+Total files created: 595
 Failed regions: 0
 
 Execution time: 3:42:15

@@ -2,11 +2,11 @@
 #SBATCH --job-name=step1.4_training_dataset
 #SBATCH --output=step1.4_%j.out
 #SBATCH --error=step1.4_%j.err
-#SBATCH --time=24:00:00
+#SBATCH --time=48:00:00
 #SBATCH --cpus-per-task=40
 #SBATCH --mem=240G
 
-# Load modules
+# Load required modules
 module load GCC/12.3.0
 module load SciPy-bundle/2023.07
 module load matplotlib/3.7.2
@@ -16,10 +16,6 @@ module load JupyterNotebook/7.0.2
 module load scikit-build/0.17.6
 module load imageio/2.33.1
 module load Python/3.11.3
-
-# Verify modules loaded
-echo "Loaded modules:"
-module list
 
 # Print job information
 echo "Job ID: $SLURM_JOB_ID"
@@ -32,6 +28,7 @@ cd /home/chattopa/data_storage/TissueBERT_analysis/step_1_data_preparation/step1
 
 echo "Script directory: $(pwd)"
 echo "Data will be written to: /home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset"
+echo "Expected output: ~595 files (119 samples × 5 augmentations)"
 echo ""
 
 # Run the script

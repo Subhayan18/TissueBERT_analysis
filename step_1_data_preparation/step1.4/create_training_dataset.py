@@ -144,7 +144,7 @@ def save_training_file(training_data: dict, filename: str):
 def _process_sample_worker(args):
     """
     Worker function for multiprocessing - processes a single sample.
-    This is a module-level function so it can be pickled.
+    Creates one file per augmentation version containing all regions.
     """
     sample_name, sample_file_path, threemer_sequences_dict, region_ids_list, tissue_mapping, sample_idx, total_samples = args
     
@@ -188,17 +188,22 @@ def _process_sample_worker(args):
         # Create 3-mer vocabulary
         threemer_to_id = create_threemer_vocab()
         
-        # Get sample info
-        sample_info = {
-            'sample_name': sample_name,
-            'tissue': tissue,
-            'n_regions': len(sample_data['region_ids']),
-            'n_reads': len(sample_data['read_ids'])
-        }
-        
-        # Process each region
         n_regions = len(sample_data['region_ids'])
         
+        # Initialize storage for each augmentation version
+        # Dict: {aug_version: {'dna_tokens': [], 'methylation': [], 'region_ids': []}}
+        aug_data = {}
+        for aug_config in config.AUGMENTATION_CONFIG:
+            aug_version = aug_config['version']
+            aug_data[aug_version] = {
+                'dna_tokens': [],
+                'methylation': [],
+                'region_ids': [],
+                'n_reads': [],
+                'aug_config': aug_config
+            }
+        
+        # Process each region
         for region_idx in range(n_regions):
             try:
                 # Get region ID from threemer sequences (by index)
@@ -223,29 +228,24 @@ def _process_sample_worker(args):
                     methylation_reads, threemer_seq
                 )
                 
-                # Save each augmented version
+                # Add each augmented version to its respective storage
                 for aug_reads, aug_threemer, aug_config in augmented_versions:
-                    # Convert to training format
-                    training_data = convert_to_training_format(
-                        aug_reads,
-                        aug_threemer,
-                        tissue_one_hot,
-                        sample_info,
-                        threemer_to_id
-                    )
+                    aug_version = aug_config['version']
                     
-                    # Generate filename
-                    filename = generate_filename(
-                        sample_name,
-                        region_id,
-                        aug_config['version']
-                    )
+                    # Convert to training format (but don't save yet)
+                    dna_tokens = threemers_to_tokens(aug_threemer, threemer_to_id)
+                    methylation_pattern = aggregate_methylation(aug_reads)
                     
-                    # Save to file
-                    save_training_file(training_data, filename)
+                    dna_tokens = pad_or_truncate(dna_tokens, config.MAX_SEQUENCE_LENGTH, 
+                                                  pad_value=config.SPECIAL_TOKENS['PAD'])
+                    methylation_pattern = pad_or_truncate(methylation_pattern, config.MAX_SEQUENCE_LENGTH,
+                                                          pad_value=config.METH_NO_CPG)
                     
-                    stats['n_files'] += 1
-                    stats['n_augmentations'] += 1
+                    # Accumulate in arrays
+                    aug_data[aug_version]['dna_tokens'].append(dna_tokens)
+                    aug_data[aug_version]['methylation'].append(methylation_pattern)
+                    aug_data[aug_version]['region_ids'].append(region_id)
+                    aug_data[aug_version]['n_reads'].append(len(aug_reads))
                 
                 stats['n_regions'] += 1
                 
@@ -254,6 +254,27 @@ def _process_sample_worker(args):
                 import traceback
                 traceback.print_exc()
                 stats['n_failed'] += 1
+        
+        # Save one file per augmentation version
+        for aug_version, data_dict in aug_data.items():
+            if len(data_dict['dna_tokens']) > 0:
+                # Convert lists to arrays
+                combined_data = {
+                    'dna_tokens': np.array(data_dict['dna_tokens'], dtype=np.int32),
+                    'methylation': np.array(data_dict['methylation'], dtype=np.uint8),
+                    'region_ids': np.array(data_dict['region_ids'], dtype='U50'),
+                    'n_reads': np.array(data_dict['n_reads'], dtype=np.int32),
+                    'tissue_label': tissue_one_hot,
+                    'sample_name': sample_name,
+                    'tissue_name': tissue
+                }
+                
+                # Generate filename: sample_name_augV.npz
+                filename = f"{sample_name}_aug{aug_version}.npz"
+                save_training_file(combined_data, filename)
+                
+                stats['n_files'] += 1
+                stats['n_augmentations'] += len(data_dict['dna_tokens'])
         
         return stats
         
@@ -525,29 +546,30 @@ class TrainingDatasetCreator:
         
         for npz_file in tqdm(npz_files, desc="Creating metadata"):
             try:
-                # Parse filename
-                parts = npz_file.replace('.npz', '').split('_')
-                
-                # Extract info from filename
-                # Format: sample_XXX_<tissue>_region_<coords>_aug<V>
-                aug_version = int(parts[-1].replace('aug', ''))
+                # Parse filename: sample_name_augV.npz
+                parts = npz_file.replace('.npz', '').rsplit('_aug', 1)
+                sample_name = parts[0]
+                aug_version = int(parts[1])
                 
                 # Load file to get metadata
                 filepath = os.path.join(config.TRAIN_DIR, npz_file)
                 data = np.load(filepath)
                 
                 tissue_idx = np.argmax(data['tissue_label'])
-                tissue_name = config.INDEX_TO_TISSUE.get(tissue_idx, 'Unknown')
+                tissue_name = str(data['tissue_name']) if 'tissue_name' in data else config.INDEX_TO_TISSUE.get(tissue_idx, 'Unknown')
+                
+                n_regions = data['dna_tokens'].shape[0]
+                total_reads = int(data['n_reads'].sum()) if 'n_reads' in data else 0
                 
                 metadata_entries.append({
                     'filename': npz_file,
-                    'sample_id': '_'.join(parts[:-1]),  # Everything except aug version
+                    'sample_name': sample_name,
                     'tissue_type': tissue_name,
                     'tissue_index': tissue_idx,
                     'aug_version': aug_version,
-                    'n_reads': int(data['n_reads']),
-                    'avg_coverage': int(data['avg_coverage']),
-                    'seq_length': len(data['dna_tokens'])
+                    'n_regions': n_regions,
+                    'total_reads': total_reads,
+                    'seq_length': config.MAX_SEQUENCE_LENGTH
                 })
                 
             except Exception as e:

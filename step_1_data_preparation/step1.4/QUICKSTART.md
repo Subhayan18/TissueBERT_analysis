@@ -58,8 +58,8 @@ Download these from Claude's outputs:
 
 | Mode | Time | Storage | Files |
 |------|------|---------|-------|
-| Test (5 samples) | ~30 min | ~10 GB | ~1.3M |
-| Full (119 samples) | ~4 hours | ~300 GB | ~30M |
+| Test (5 samples) | ~30 min | ~10 GB | ~25 |
+| Full (119 samples) | ~4 hours | ~300 GB | ~595 |
 
 ## 📊 Monitor Progress
 
@@ -76,7 +76,8 @@ watch -n 10 'ls training_dataset/all_data/*.npz | wc -l'
 **Output location:**
 ```
 /home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/
-├── all_data/          # 30.4 million .npz files (PyTorch format)
+├── all_data/          # ~595 .npz files (PyTorch format)
+│                      # Each file = 1 sample × 1 augmentation × all 51,089 regions
 ├── metadata.csv       # Summary of all training data
 └── logs/             # Execution logs
 ```

@@ -25,8 +25,9 @@ Step_1.4/
 - Tissue labels
 
 **Output:**
-- ~30.4 million training files (.npz format)
-  - 119 samples × 51,089 regions × 5 augmentations = 30,377,955 files
+- **~595 training files** (.npz format) - ONE FILE PER SAMPLE-AUGMENTATION
+  - 119 samples × 5 augmentations = 595 files
+  - Each file contains ALL 51,089 regions for that sample-augmentation
 - metadata.csv with file information
 - Log files tracking progress
 
@@ -84,8 +85,8 @@ python3 create_training_dataset.py --test
 ```
 
 **Expected output:**
-- ~1.3 million files (5 samples × 51,089 regions × 5 augmentations)
-- ~10 GB storage
+- ~25 files (5 samples × 5 augmentations)
+- ~5-10 GB storage
 - ~30 minutes runtime
 
 ### Limited Run
@@ -113,24 +114,29 @@ python3 create_training_dataset.py
 
 ### Training Files
 
-Each `.npz` file contains:
+Each `.npz` file contains one sample-augmentation combination with ALL regions:
 
 ```python
 {
-    'dna_tokens': np.int32[150],        # 3-mer token IDs
-    'methylation': np.uint8[150],       # Methylation pattern (0/1/2)
-    'tissue_label': np.float32[39],     # One-hot tissue label
-    'n_reads': int,                     # Number of reads
-    'avg_coverage': int                 # Average coverage
+    'dna_tokens': np.int32[51089, 150],      # All regions × sequence length
+    'methylation': np.uint8[51089, 150],     # All regions × sequence length  
+    'tissue_label': np.float32[119],         # One-hot tissue label
+    'region_ids': np.array[51089],           # Region identifiers
+    'n_reads': np.int32[51089],              # Reads per region
+    'sample_name': str,                      # Sample identifier
+    'tissue_name': str                       # Tissue type name
 }
 ```
 
 **Filename format:**
 ```
-sample_000_Adipocytes_chr1_273383_273777_aug0.npz
-sample_000_Adipocytes_chr1_273383_273777_aug1.npz
+sample_064_Bone_aug0.npz
+sample_064_Bone_aug1.npz
+sample_064_Bone_aug2.npz
 ...
 ```
+
+**File size:** ~500-1000 MB per file
 
 ### Metadata File
 
@@ -139,13 +145,13 @@ sample_000_Adipocytes_chr1_273383_273777_aug1.npz
 | Column | Description |
 |--------|-------------|
 | filename | NPZ filename |
-| sample_id | Sample identifier |
+| sample_name | Sample identifier |
 | tissue_type | Tissue name |
-| tissue_index | Tissue index (0-38) |
+| tissue_index | Tissue index (0-118) |
 | aug_version | Augmentation version (0-4) |
-| n_reads | Number of reads |
-| avg_coverage | Average coverage |
-| seq_length | Sequence length (always 150) |
+| n_regions | Number of regions (51,089) |
+| total_reads | Total reads across all regions |
+| seq_length | Sequence length (150) |
 
 ## 🔍 Data Augmentation Details
 
@@ -184,27 +190,27 @@ Converts to reverse complement:
 
 ### Full Dataset (119 samples)
 
-| Component | Size |
-|-----------|------|
-| Training files | ~300 GB |
-| Metadata | ~500 MB |
-| Logs | ~100 MB |
-| **Total** | **~300 GB** |
+| Component | Size | Files |
+|-----------|------|-------|
+| Training files | ~300 GB | ~595 |
+| Metadata | ~50 KB | 1 |
+| Logs | ~100 MB | varies |
+| **Total** | **~300 GB** | **~595** |
 
 ### Per Sample
 
-- ~2.5 GB per sample (51,089 regions × 5 augmentations)
+- ~2.5 GB per sample (5 augmentations × ~500 MB each)
 
 ## ⏱️ Runtime Estimates
 
 With 40 CPU cores:
 
-| Mode | Samples | Runtime | Storage |
-|------|---------|---------|---------|
-| Test | 5 | ~30 min | ~10 GB |
-| Limited (10) | 10 | ~1 hour | ~25 GB |
-| Limited (20) | 20 | ~2 hours | ~50 GB |
-| **Full (119)** | **119** | **3-5 hours** | **~300 GB** |
+| Mode | Samples | Runtime | Storage | Files |
+|------|---------|---------|---------|-------|
+| Test | 5 | ~30 min | ~10 GB | ~25 |
+| Limited (10) | 10 | ~1 hour | ~25 GB | ~50 |
+| Limited (20) | 20 | ~2 hours | ~50 GB | ~100 |
+| **Full (119)** | **119** | **3-5 hours** | **~300 GB** | **~595** |
 
 ## 🐛 Troubleshooting
 
@@ -255,14 +261,15 @@ The script automatically validates output files:
 import numpy as np
 
 # Load a training file
-data = np.load('training_dataset/all_data/sample_000_Adipocytes_chr1_273383_273777_aug0.npz')
+data = np.load('training_dataset/all_data/sample_064_Bone_aug0.npz')
 
 # Check contents
 print("Keys:", data.files)
-print("DNA tokens shape:", data['dna_tokens'].shape)  # Should be (150,)
-print("Methylation shape:", data['methylation'].shape)  # Should be (150,)
-print("Tissue label shape:", data['tissue_label'].shape)  # Should be (39,)
+print("DNA tokens shape:", data['dna_tokens'].shape)  # Should be (51089, 150)
+print("Methylation shape:", data['methylation'].shape)  # Should be (51089, 150)
+print("Tissue label shape:", data['tissue_label'].shape)  # Should be (119,)
 print("Tissue label sum:", data['tissue_label'].sum())  # Should be 1.0
+print("Number of regions:", len(data['region_ids']))  # Should be 51089
 ```
 
 ## 🔧 Customization
@@ -309,6 +316,7 @@ tail -f training_dataset/logs/training_dataset_*.log
 
 # Check number of files created
 watch -n 10 'ls training_dataset/all_data/*.npz | wc -l'
+# Expected: ~595 for full run, ~25 for test
 
 # Check disk usage
 watch -n 60 'du -sh training_dataset/'
