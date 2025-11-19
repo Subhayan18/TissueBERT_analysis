@@ -1,0 +1,49 @@
+Loading modules...
+============================================================
+Complete Model Architecture Test
+============================================================
+
+1. Model Configuration:
+   ✓ Layers: 6
+   ✓ Hidden size: 512
+   ✓ Attention heads: 8
+
+2. Model Created:
+   ✓ Total parameters: 19.5M
+   ✓ Device: cuda
+
+3. Forward Pass Test:
+   ✓ Input: torch.Size([8, 150])
+   ✓ Output: torch.Size([8, 39])
+   ✓ Probabilities sum: 1.000000
+
+4. Backward Pass Test:
+   ✓ Loss computed: 3.7144
+   ✓ Gradients computed successfully
+   ✓ Optimizer step completed
+
+5. Mini Training Loop (10 steps):
+   ✓ 10 training steps completed
+   ✓ Loss range: 3.4305 - 4.6718
+   ✓ Final loss: 4.0449
+
+6. GPU Memory Usage:
+   Allocated: 0.33 GB
+   Reserved: 0.68 GB
+   Available: ~79.3 GB
+
+7. Save/Load Test:
+   ✓ Model saved to /tmp/test_model.pt
+   ✓ Model loaded successfully
+
+============================================================
+✅ ALL TESTS PASSED!
+============================================================
+
+Your setup is ready for:
+  • Model training
+  • Gradient computation
+  • Checkpointing
+  • Full training pipeline
+
+Test completed successfully!
