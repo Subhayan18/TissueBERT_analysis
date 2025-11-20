@@ -1,0 +1,55 @@
+# TissueBERT Training Configuration
+# Step 3: Model Training (20 epochs initial run)
+
+# Model architecture
+model:
+  vocab_size: 69  # 64 3-mers + 5 special tokens
+  hidden_size: 512
+  num_layers: 6
+  num_attention_heads: 8
+  intermediate_size: 2048  # 4x hidden_size
+  max_seq_length: 150
+  num_classes: 22  # Simplified tissue types
+  dropout: 0.1
+
+# Data paths
+data:
+  hdf5_path: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/methylation_dataset.h5"
+  train_csv: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/data_splits/train_files.csv"
+  val_csv: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/data_splits/val_files.csv"
+  test_csv: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/data_splits/test_files.csv"
+
+# Training configuration
+training:
+  num_epochs: 50  # Start with 20, then scale to 50-100
+  batch_size: 128  # Aggressive plan for A100
+  gradient_accumulation_steps: 4  # Effective batch = 512
+  num_workers: 8  # Parallel data loading
+  cpg_dropout_rate: 0.05  # CpG dropout augmentation (training only)
+  max_grad_norm: 1.0  # Gradient clipping
+  save_interval: 5  # Save checkpoint every N epochs
+  max_resume_count: 5  # Maximum number of job resumptions
+
+# Optimizer configuration
+optimizer:
+  learning_rate: 4.0e-4  # 4e-4
+  beta1: 0.9
+  beta2: 0.999
+  eps: 1.0e-8
+  weight_decay: 0.01
+  warmup_ratio: 0.1  # 10% warmup
+
+# Loss configuration
+loss:
+  label_smoothing: 0.1  # Helps generalization
+
+# Logging configuration
+logging:
+  log_interval: 100  # Log every N steps
+  plot_interval: 1  # Plot confusion matrix every N epochs
+
+# Output paths
+paths:
+  checkpoint_dir: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_results/checkpoints"
+  log_dir: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_results/logs"
+  results_dir: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_results/results"

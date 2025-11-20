@@ -1,0 +1,202 @@
+============================================================
+Step 2.2: Dataset and DataLoader Setup
+============================================================
+
+Start time: Thu Nov 20 12:43:45 PM CET 2025
+
+Loading modules...
+Working directory: /home/chattopa/data_storage/TissueBERT_analysis/step_2_model_architecture/step2.2/
+
+============================================================
+Step 1: Converting NPZ files to HDF5
+============================================================
+
+
+✓ HDF5 conversion completed successfully!
+
+============================================================
+Step 2: Validating DataLoaders (10 samples)
+============================================================
+
+
+================================================================================
+Creating DataLoaders
+================================================================================
+
+Split sizes:
+  Train: 455 files
+  Val:   135 files
+  Test:  175 files
+
+Creating datasets...
+     - Tissue distribution (FILE-level balancing):
+       Tissue 0: 10 files, weight=0.004545
+       Tissue 1: 10 files, weight=0.004545
+       Tissue 2: 10 files, weight=0.004545
+       Tissue 3: 125 files, weight=0.000364
+       Tissue 4: 10 files, weight=0.004545
+       Tissue 5: 10 files, weight=0.004545
+       Tissue 6: 20 files, weight=0.002273
+       Tissue 7: 10 files, weight=0.004545
+       Tissue 8: 25 files, weight=0.001818
+       Tissue 9: 10 files, weight=0.004545
+       Tissue 10: 10 files, weight=0.004545
+       Tissue 11: 10 files, weight=0.004545
+       Tissue 12: 35 files, weight=0.001299
+       Tissue 13: 10 files, weight=0.004545
+       Tissue 14: 25 files, weight=0.001818
+       Tissue 15: 20 files, weight=0.002273
+       Tissue 16: 10 files, weight=0.004545
+       Tissue 17: 10 files, weight=0.004545
+       Tissue 18: 55 files, weight=0.000826
+       Tissue 19: 10 files, weight=0.004545
+       Tissue 20: 10 files, weight=0.004545
+       Tissue 21: 10 files, weight=0.004545
+   Loaded train dataset:
+     - Files: 455
+     - Total regions: 23,245,495
+     - Tissues: 22
+     - CpG dropout: 0.05
+     - Tissue balanced: True
+   Loaded val dataset:
+     - Files: 135
+     - Total regions: 6,897,015
+     - Tissues: 22
+     - CpG dropout: 0.0
+     - Tissue balanced: False
+   Loaded test dataset:
+     - Files: 175
+     - Total regions: 8,940,575
+     - Tissues: 22
+     - CpG dropout: 0.0
+     - Tissue balanced: False
+
+Creating dataloaders...
+  Batch size: 32
+  Num workers: 4
+  Using custom batch sampler (avoids 2^24 limit)
+  Batches per epoch: 726421
+
+✓ DataLoaders created successfully!
+
+================================================================================
+DataLoader Validation (testing 10 batches)
+================================================================================
+
+Device: cuda
+
+1. Testing Training DataLoader...
+--------------------------------------------------------------------------------
+   Testing 10 batches...
+      Batch 2/10: 0.5ms, 0MB
+      Batch 4/10: 0.6ms, 0MB
+      Batch 6/10: 0.3ms, 0MB
+      Batch 8/10: 0.4ms, 0MB
+      Batch 10/10: 0.6ms, 0MB
+
+   Results:
+     ✓ Batches tested: 10
+     ✓ Total samples: 320
+     ✓ Loading speed: 66678.8 samples/sec
+     ✓ Batch time: 0.5 ± 0.2 ms
+     ✓ Memory per batch: 0.1 MB
+
+   Shapes (first batch):
+     dna_tokens: torch.Size([32, 150]) (dtype=torch.int64)
+     methylation: torch.Size([32, 150]) (dtype=torch.int64)
+     n_reads: torch.Size([32]) (dtype=torch.int64)
+     tissue_label: torch.Size([32]) (dtype=torch.int64)
+     file_idx: torch.Size([32]) (dtype=torch.int64)
+     region_idx: torch.Size([32]) (dtype=torch.int64)
+
+   Value ranges:
+     dna_tokens: [0, 64]
+     methylation: [0, 2]
+     tissue_label: [0, 21]
+
+   Tissue distribution (top 10):
+     Tissue 20: 22 samples
+     Tissue 16: 17 samples
+     Tissue 14: 17 samples
+     Tissue 18: 17 samples
+     Tissue 2: 16 samples
+     Tissue 6: 16 samples
+     Tissue 9: 16 samples
+     Tissue 0: 15 samples
+     Tissue 17: 15 samples
+     Tissue 5: 15 samples
+
+   Methylation statistics:
+     Mean methylation rate: 85.44%
+     Mean missing rate: 96.92%
+
+2. Testing Validation DataLoader...
+--------------------------------------------------------------------------------
+   Testing 10 batches...
+      Batch 2/10: 0.1ms, 0MB
+      Batch 4/10: 0.3ms, 0MB
+      Batch 6/10: 0.1ms, 0MB
+      Batch 8/10: 0.3ms, 0MB
+      Batch 10/10: 0.1ms, 0MB
+
+   Results:
+     ✓ Batches tested: 10
+     ✓ Total samples: 320
+     ✓ Loading speed: 148569.5 samples/sec
+     ✓ Batch time: 0.2 ± 0.1 ms
+     ✓ Memory per batch: 0.1 MB
+
+   Shapes (first batch):
+     dna_tokens: torch.Size([32, 150]) (dtype=torch.int64)
+     methylation: torch.Size([32, 150]) (dtype=torch.int64)
+     n_reads: torch.Size([32]) (dtype=torch.int64)
+     tissue_label: torch.Size([32]) (dtype=torch.int64)
+     file_idx: torch.Size([32]) (dtype=torch.int64)
+     region_idx: torch.Size([32]) (dtype=torch.int64)
+
+   Value ranges:
+     dna_tokens: [0, 64]
+     methylation: [0, 2]
+     tissue_label: [0, 0]
+
+   Tissue distribution (top 10):
+     Tissue 0: 320 samples
+
+   Methylation statistics:
+     Mean methylation rate: 85.40%
+     Mean missing rate: 97.09%
+
+3. Validation Summary
+================================================================================
+
+✓ All validation checks passed!
+
+4. Train vs Val Comparison
+--------------------------------------------------------------------------------
+   Loading speed:
+     Train: 66678.8 samples/sec
+     Val:   148569.5 samples/sec
+   Memory usage:
+     Train: 0.1 MB/batch
+     Val:   0.1 MB/batch
+
+================================================================================
+
+✓ Validation complete!
+
+✓ DataLoader validation completed successfully!
+
+============================================================
+Step 2.2 Setup Complete!
+============================================================
+
+Generated files:
+  - HDF5 dataset: /home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/methylation_dataset.h5
+
+Next steps:
+  1. Review the validation output above
+  2. If everything looks good, proceed to Step 2.3 (training script)
+  3. Import dataloaders in training: from dataset_dataloader import create_dataloaders
+
+End time: Thu Nov 20 12:44:49 PM CET 2025
+============================================================

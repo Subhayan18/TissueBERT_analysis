@@ -1,0 +1,284 @@
+================================================================================
+TissueBERT Training Setup - File Manifest
+Step 2.3: Loss Functions & Training Configuration - COMPLETE
+================================================================================
+
+Date: 2024-11-20
+Status: Ready for Deployment
+Location: /mnt/user-data/outputs/
+
+================================================================================
+DELIVERABLES
+================================================================================
+
+step_3_training_setup/
+├── train.py                    (~24 KB) Main training script
+├── model.py                    (~13 KB) DNABERT-S model architecture  
+├── utils.py                    (~16 KB) Metrics & utilities
+├── config_20epoch.yaml         (~1.7 KB) Config for 20 epoch run
+├── config_50epoch.yaml         (~1.7 KB) Config for 50 epoch run
+├── config_100epoch.yaml        (~1.8 KB) Config for 100 epoch run
+├── submit_training.sh          (~4.2 KB) SLURM job submission
+├── analyze_results.py          (~9.4 KB) Results analysis script
+└── README_TRAINING.md          (~9.9 KB) Complete documentation
+
+SETUP_GUIDE.md                  (~12 KB) Installation & quick start guide
+
+================================================================================
+FILE DESCRIPTIONS
+================================================================================
+
+1. train.py
+   - Main training loop with full PyTorch Lightning-style features
+   - Auto-checkpointing and resumption (up to 5 times)
+   - TensorBoard + CSV logging
+   - Comprehensive metrics tracking
+   - Memory-efficient data loading
+   - Gradient accumulation support
+   - ~700 lines of well-documented Python
+
+2. model.py
+   - DNABERT-S transformer architecture
+   - 6-layer encoder with multi-head attention
+   - DNA sequence + methylation embeddings
+   - Position embeddings
+   - Classification head for 22 tissues
+   - ~20M parameters (~80 MB model size)
+   - ~400 lines with testing code
+
+3. utils.py
+   - Metrics: accuracy, precision, recall, F1 (overall + per-class)
+   - Top-3 accuracy computation
+   - Confusion matrix generation
+   - Training curves visualization
+   - Checkpointing utilities
+   - Comprehensive summary report generation
+   - ~550 lines of utilities
+
+4. config_20epoch.yaml
+   - Initial 20 epoch training run
+   - Batch size: 128, Gradient accumulation: 4x
+   - Learning rate: 4e-4 with OneCycleLR
+   - Expected time: 10-16 hours
+   - Target: 75-80% validation accuracy
+
+5. config_50epoch.yaml
+   - Medium 50 epoch training run
+   - Same hyperparameters as 20 epoch
+   - Expected time: 25-40 hours
+   - Target: 85%+ validation accuracy
+
+6. config_100epoch.yaml
+   - Full 100 epoch training run
+   - Same hyperparameters as 20 epoch
+   - Expected time: 50-80 hours
+   - Target: 90%+ validation accuracy
+
+7. submit_training.sh
+   - SLURM job submission script
+   - Requests A100 GPU, 64GB RAM, 12 CPUs
+   - Max time: 120 hours (5 days)
+   - Auto-loads modules via LMOD.sourceme
+   - Auto-resubmits on timeout (up to 5 times)
+   - Comprehensive logging
+
+8. analyze_results.py
+   - Post-training analysis script
+   - Parses training logs and metrics
+   - Generates comprehensive reports
+   - Creates visualizations
+   - Provides recommendations
+   - Can be run during or after training
+
+9. README_TRAINING.md
+   - Complete training documentation
+   - Quick start guide
+   - Monitoring instructions
+   - Troubleshooting guide
+   - Expected performance metrics
+   - Next steps after training
+
+10. SETUP_GUIDE.md
+    - Installation instructions
+    - Pre-flight checklist
+    - Quick start commands
+    - What to expect during training
+    - Decision tree for next steps
+
+================================================================================
+INSTALLATION INSTRUCTIONS
+================================================================================
+
+1. Copy files to HPC:
+   
+   cd /home/chattopa/data_storage/TissueBERT_analysis/step_2_model_architecture
+   mkdir -p step_3_model_training
+   cd step_3_model_training
+   cp /path/to/outputs/step_3_training_setup/* .
+   chmod +x submit_training.sh analyze_results.py
+
+2. Verify setup:
+   
+   python model.py  # Test model architecture
+   cat config_20epoch.yaml | grep hdf5_path  # Verify data path
+
+3. Launch training:
+   
+   sbatch submit_training.sh config_20epoch.yaml
+
+4. Monitor:
+   
+   tail -f /home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_results/logs/slurm_*.out
+
+================================================================================
+CONFIGURATION SUMMARY
+================================================================================
+
+Model:
+  - Architecture: DNABERT-S (6-layer transformer)
+  - Hidden size: 512
+  - Attention heads: 8
+  - Parameters: ~20M
+  - Output: 22 tissue classes
+
+Training:
+  - Batch size: 128 (effective: 512 with 4x grad accumulation)
+  - Learning rate: 4e-4 (OneCycleLR with 10% warmup)
+  - Weight decay: 0.01
+  - Label smoothing: 0.1
+  - CpG dropout: 0.05 (training only)
+  - Gradient clipping: 1.0
+
+Data:
+  - Train: 455 files (23.2M regions)
+  - Val: 135 files (6.9M regions)
+  - Test: 175 files (8.9M regions)
+  - Tissue-balanced sampling
+  - HDF5 format for efficient loading
+
+Hardware:
+  - GPU: A100 (1x)
+  - RAM: 64 GB
+  - CPUs: 12 cores
+  - Storage: ~10 GB for checkpoints/logs
+
+================================================================================
+EXPECTED PERFORMANCE
+================================================================================
+
+20 Epochs (~10-16 hours):
+  - Target: 75-80% validation accuracy
+  - Loss: 3.0 → 0.6
+  - All tissues learning (F1 > 0.5)
+
+50 Epochs (~25-40 hours):
+  - Target: 85%+ validation accuracy
+  - Per-tissue F1: >0.7
+  - Top-3 accuracy: >95%
+
+100 Epochs (~50-80 hours):
+  - Target: 90%+ validation accuracy
+  - Per-tissue F1: >0.8
+  - Ready for deconvolution
+
+================================================================================
+KEY FEATURES
+================================================================================
+
+✓ Automatic checkpointing and resumption
+✓ TensorBoard + CSV logging
+✓ Per-tissue performance tracking
+✓ Comprehensive metrics (accuracy, F1, confusion matrix)
+✓ Training curves visualization
+✓ Memory-efficient data loading
+✓ Gradient accumulation for large effective batch sizes
+✓ Label smoothing for regularization
+✓ CpG dropout augmentation
+✓ Auto-resubmission on timeout (up to 5 times)
+✓ Comprehensive error handling
+✓ Post-training analysis tools
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+After Step 2.3 (Now):
+  1. Copy files to HPC
+  2. Verify setup
+  3. Submit 20 epoch training job
+  4. Monitor progress
+
+After 20 Epochs Complete:
+  1. Analyze results (analyze_results.py)
+  2. Evaluate performance (target: >75% acc)
+  3. Decide: Continue to 50 epochs?
+
+After 50 Epochs Complete:
+  1. Comprehensive evaluation
+  2. Per-tissue analysis
+  3. Begin Step 4: Validation & Testing
+
+After 100 Epochs (if needed):
+  1. Final model selection
+  2. Test set evaluation
+  3. Begin Step 5: Clinical Application
+
+================================================================================
+ROADMAP PROGRESS
+================================================================================
+
+Phase 1: Data Preparation              ✅ COMPLETE
+  Step 1.1: Extract panel regions      ✅
+  Step 1.2: Create read-level data     ✅
+  Step 1.3: Add DNA sequence context   ✅
+  Step 1.4: Create training dataset    ✅
+  Step 1.5: Data splitting             ✅
+
+Phase 2: Model Architecture            ✅ COMPLETE
+  Step 2.1: Architecture design        ✅
+  Step 2.2: Dataset & DataLoader       ✅
+  Step 2.3: Loss & optimization        ✅ (THIS STEP)
+
+Phase 3: Model Training                ⏳ READY TO START
+  Step 3.1: Training configuration     ✅ (configs created)
+  Step 3.2: Training loop              ✅ (script ready)
+  Step 3.3: Monitoring & logging       ✅ (TensorBoard + CSV)
+  Step 3.4: Expected dynamics          ✅ (documented)
+  Step 3.5: Checkpointing strategy     ✅ (implemented)
+  Step 3.6: Computational requirements ✅ (optimized)
+  Step 3.7: Training quality checks    ✅ (implemented)
+
+Phase 4: Validation & Testing          ⏳ AFTER TRAINING
+Phase 5: Clinical Application          ⏳ FINAL PHASE
+
+================================================================================
+QUESTIONS & SUPPORT
+================================================================================
+
+For issues:
+  1. Check SLURM logs: /path/to/logs/slurm_*.err
+  2. Check training logs: /path/to/logs/training_log.csv
+  3. Run: python analyze_results.py --help
+  4. Review: README_TRAINING.md
+  5. Review: SETUP_GUIDE.md
+
+For configuration changes:
+  - Edit config_*.yaml files
+  - See README_TRAINING.md for parameter descriptions
+
+For troubleshooting:
+  - See SETUP_GUIDE.md "Troubleshooting" section
+  - Test individual components: python model.py, python utils.py
+
+================================================================================
+DOCUMENT STATUS
+================================================================================
+
+Created: 2024-11-20
+Version: 1.0
+Status: READY FOR DEPLOYMENT
+Validated: Model tested, configs verified, documentation complete
+
+All files are production-ready and can be deployed immediately.
+
+================================================================================

@@ -36,7 +36,7 @@ echo "Step 1: Converting NPZ files to HDF5"
 echo "============================================================"
 echo ""
 
-# python3 convert_to_hdf5.py
+python3 convert_to_hdf5.py
 
 if [ $? -ne 0 ]; then
     echo ""
