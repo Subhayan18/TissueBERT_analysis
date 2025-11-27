@@ -254,30 +254,6 @@ evaluation_results/
    - Re-split ensuring synthetic versions stay together
    - More honest validation metrics
 
-## File Locations
-
-```
-Project structure:
-â"œâ"€â"€ training_dataset/
-â"‚   â"œâ"€â"€ methylation_dataset.h5          (original, all chromosomes)
-â"‚   â"œâ"€â"€ methylation_dataset_fullgenome.h5  (symlink to above)
-â"‚   â"œâ"€â"€ methylation_dataset_chr1.h5     (chr1 subset)
-â"‚   â"œâ"€â"€ fullgenome_subset/
-â"‚   â"‚   â"œâ"€â"€ train_files.csv
-â"‚   â"‚   â"œâ"€â"€ val_files.csv
-â"‚   â"‚   â""â"€â"€ test_files.csv
-â"‚   â""â"€â"€ chr1_subset/
-â"‚       â"œâ"€â"€ train_files.csv
-â"‚       â"œâ"€â"€ val_files.csv
-â"‚       â""â"€â"€ test_files.csv
-â"œâ"€â"€ fullgenome_results/
-â"‚   â"œâ"€â"€ checkpoints/
-â"‚   â""â"€â"€ logs/
-â""â"€â"€ chr1_fast_results/
-    â"œâ"€â"€ checkpoints/
-    â""â"€â"€ logs/
-```
-
 ## Summary
 
 Scaling to full genome is straightforward:
