@@ -1,0 +1,207 @@
+# CNN + Attention Model - Implementation Instructions
+
+## Files Created
+
+1. **model_cnn_attention.py** - CNN + Attention model architecture
+2. **train_cnn_attention.py** - Training script (modified from train.py)
+3. **config_chr1_cnn_attention.yaml** - Configuration file
+4. **benchmark_models.py** - Script to compare both models
+5. **dataloader_filelevel.py** - Copied from uploads (unchanged)
+
+## Step-by-Step Implementation
+
+### Step 1: Copy Files to Your Server
+
+```bash
+# On your local machine, upload these files to your server:
+scp model_cnn_attention.py user@server:/path/to/project/
+scp train_cnn_attention.py user@server:/path/to/project/
+scp config_chr1_cnn_attention.yaml user@server:/path/to/project/
+scp benchmark_models.py user@server:/path/to/project/
+scp dataloader_filelevel.py user@server:/path/to/project/
+```
+
+Or copy from /home/claude/ on this system to your working directory.
+
+### Step 2: Test CNN+Attention Model
+
+```bash
+# Verify model loads correctly
+python model_cnn_attention.py
+
+# Expected output:
+# - Model architecture printed
+# - Test with random data passes
+# - Parameters count displayed (~5-10M parameters)
+```
+
+### Step 3: Train CNN+Attention Model
+
+```bash
+# Start training
+python train_cnn_attention.py --config config_chr1_cnn_attention.yaml
+
+# Expected training behavior:
+# - Should converge faster than aggregation model (per-base info)
+# - Monitor validation accuracy - target: >93% (baseline)
+# - Training time: ~10-20 min/epoch (depends on GPU)
+```
+
+### Step 4: Monitor Training
+
+```bash
+# Check logs
+tail -f /home/chattopa/data_storage/MethAtlas_WGBSanalysis/chr1_cnn_attention_results/logs/training_log.csv
+
+# TensorBoard (optional)
+tensorboard --logdir /home/chattopa/data_storage/MethAtlas_WGBSanalysis/chr1_cnn_attention_results/logs/tensorboard
+```
+
+### Step 5: Benchmark Against Aggregation Model
+
+Once both models are trained:
+
+```bash
+python benchmark_models.py \
+  --aggregation_checkpoint /home/chattopa/data_storage/MethAtlas_WGBSanalysis/chr1_fast_results/checkpoints/best_model.pt \
+  --cnn_checkpoint /home/chattopa/data_storage/MethAtlas_WGBSanalysis/chr1_cnn_attention_results/checkpoints/best_model.pt \
+  --aggregation_config config_chr1_debug.yaml \
+  --cnn_config config_chr1_cnn_attention.yaml \
+  --output_dir ./benchmark_results
+
+# This will:
+# 1. Load both trained models
+# 2. Evaluate on test set
+# 3. Compare accuracy, top-3 accuracy, per-class accuracy
+# 4. Report winner
+# 5. Save results to benchmark_results/benchmark_results.json
+```
+
+## Architecture Overview
+
+### CNN+Attention Model
+
+```
+Input: [batch, n_regions, 150] methylation
+  ↓
+Region Encoder (1D CNN):
+  - Conv1d(1→64, k=7) + BN + ReLU + MaxPool
+  - Conv1d(64→128, k=5) + BN + ReLU + MaxPool
+  - Conv1d(128→256, k=3) + BN + ReLU
+  - AdaptiveAvgPool → [256] per region
+  ↓
+[batch, n_regions, 256]
+  ↓
+Attention Aggregator:
+  - 8-head self-attention across regions
+  - Learns which regions matter
+  - Mean pooling → [batch, 256]
+  ↓
+Classifier MLP:
+  - 256 → 512 → 1024 → 22
+  - BN + ReLU + Dropout
+  ↓
+Output: [batch, 22] logits
+```
+
+### Key Differences from Aggregation Model
+
+| Feature | Aggregation Model | CNN+Attention Model |
+|---------|------------------|---------------------|
+| Region encoding | Mean methylation (1 number) | CNN on all 150 positions |
+| Information used | ~4K numbers | ~4K × 150 = 600K values |
+| Region importance | Equal weighting | Learned attention weights |
+| Parameters | ~2-3M | ~5-10M |
+| Training speed | Fast (~6 sec/epoch) | Moderate (~15-30 sec/epoch) |
+| Expected accuracy | 93% (baseline) | >93% (hopefully!) |
+
+## Expected Results
+
+### Success Criteria
+
+**CNN+Attention should be better if:**
+- Test accuracy > 93.3% (beats aggregation baseline)
+- Improvement especially on hard-to-classify tissues
+- Attention weights are interpretable (can visualize which regions matter)
+
+**Aggregation might win if:**
+- Per-base info adds noise rather than signal
+- 150 positions too noisy at low coverage
+- Simple mean is actually optimal for this data
+
+### If CNN+Attention Underperforms
+
+Potential issues and fixes:
+
+1. **Overfitting (train high, val low)**
+   - Increase dropout (0.1 → 0.3)
+   - Add more regularization
+   - Reduce model size
+
+2. **Not converging**
+   - Lower learning rate (1e-4 → 1e-5)
+   - Longer warmup
+   - Check gradients
+
+3. **Worse than aggregation**
+   - Maybe mean methylation is actually optimal
+   - Try hybrid: CNN features + mean features
+   - Try different aggregation (attention → mean pooling)
+
+## Next Steps After Benchmarking
+
+### If CNN+Attention Wins:
+1. Train on full genome (all chromosomes)
+2. Explore attention visualization (which regions matter?)
+3. Try deeper CNN or transformer encoder
+4. Test on real cfDNA samples
+
+### If Aggregation Wins:
+1. Stick with simpler model
+2. Focus on scaling to full genome
+3. Maybe try ensemble of both models
+4. Per-base might help on real cfDNA (higher coverage)
+
+## Files to Copy Back
+
+After training, copy these back for analysis:
+
+```bash
+# Checkpoints
+chr1_cnn_attention_results/checkpoints/best_model.pt
+chr1_cnn_attention_results/checkpoints/final_model.pt
+
+# Logs
+chr1_cnn_attention_results/logs/training_log.csv
+chr1_cnn_attention_results/logs/config.yaml
+
+# Benchmark results
+benchmark_results/benchmark_results.json
+```
+
+## Quick Sanity Checks
+
+Before full training, verify:
+
+```bash
+# 1. Model loads
+python -c "from model_cnn_attention import CNNAttentionTissueBERT; m = CNNAttentionTissueBERT()"
+
+# 2. Dataloader works
+python -c "from dataloader_filelevel import create_filelevel_dataloaders; \
+  train, val, test = create_filelevel_dataloaders('path/to/hdf5', 'train.csv', 'val.csv', 'test.csv'); \
+  print('OK')"
+
+# 3. Forward pass works
+python model_cnn_attention.py
+```
+
+All should run without errors before starting full training.
+
+## Contact
+
+If you encounter issues:
+1. Check error messages in logs
+2. Verify file paths in config
+3. Check GPU memory (might need smaller batch size)
+4. Compare with working aggregation model setup

@@ -21,14 +21,17 @@ data:
 
 # Training configuration
 training:
-  num_epochs: 50  # Start with 20, then scale to 50-100
+  num_epochs: 20  # Start with 20, then scale to 50-100
   batch_size: 128  # Aggressive plan for A100
   gradient_accumulation_steps: 4  # Effective batch = 512
-  num_workers: 8  # Parallel data loading
+  num_workers: 24  # Parallel data loading (optimized for 32 CPUs)
   cpg_dropout_rate: 0.05  # CpG dropout augmentation (training only)
   max_grad_norm: 1.0  # Gradient clipping
   save_interval: 5  # Save checkpoint every N epochs
   max_resume_count: 5  # Maximum number of job resumptions
+  max_steps_per_epoch: 10000  # Limit steps per epoch for faster training
+  max_val_steps: 10000  # Validate on 10k steps (5x more = more reliable)
+  validation_frequency: 5  # Validate every 5 epochs (saves time)
 
 # Optimizer configuration
 optimizer:

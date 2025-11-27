@@ -1,0 +1,142 @@
+# FAST DATA LOADING Configuration
+# This config optimizes for 10-15x faster training
+
+# Paths configuration
+paths:
+  results_dir: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/chr1_fast_results"
+  checkpoint_dir: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/chr1_fast_results/checkpoints"
+  log_dir: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/chr1_fast_results/logs"
+
+# Data paths - CHR1 ONLY
+data:
+  hdf5_path: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/methylation_dataset_chr1.h5"
+  train_csv: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/chr1_subset/train_files.csv"
+  val_csv: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/chr1_subset/val_files.csv"
+  test_csv: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/chr1_subset/test_files.csv"
+
+# Model configuration
+model:
+  vocab_size: 69
+  hidden_size: 512
+  num_layers: 6
+  num_attention_heads: 8
+  intermediate_size: 2048
+  max_seq_length: 150
+  num_classes: 22
+  dropout: 0.1
+
+# Training configuration - OPTIMIZED FOR SPEED
+training:
+  num_epochs: 50
+  batch_size: 8  # REDUCED from 256 for faster data loading
+  gradient_accumulation_steps: 4  # INCREASED to maintain effective batch=512
+  
+  # CRITICAL FIX: Reduced workers for better I/O performance
+  num_workers: 8  # REDUCED from 24 (too many workers = slow I/O)
+  
+  cpg_dropout_rate: 0.05
+  max_grad_norm: 1.0
+  save_interval: 5
+  max_resume_count: 5
+  max_steps_per_epoch: 50  # Train full epochs
+  max_val_steps: 100
+  validation_frequency: 5
+
+# Optimizer configuration
+optimizer:
+  learning_rate: 1.0e-5
+  beta1: 0.9
+  beta2: 0.999
+  eps: 1.0e-8
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+
+# Loss configuration
+loss:
+  label_smoothing: 0.0
+
+# Logging configuration
+logging:
+  log_interval: 100
+  plot_interval: 5
+
+# ============================================================================
+# DATA LOADING OPTIMIZATION NOTES
+# ============================================================================
+
+# WHY THESE CHANGES WORK:
+# 
+# 1. num_workers: 24 → 8
+#    - 24 workers all try to read HDF5 simultaneously
+#    - This creates I/O contention and actually SLOWS things down
+#    - 8 workers is optimal for HDF5 random access
+#    - Expected speedup: 5-10x
+#
+# 2. batch_size: 256 → 128
+#    - Smaller batches = less data to load per iteration
+#    - GPU can process while next batch loads
+#    - Better pipelining between data loading and GPU
+#
+# 3. gradient_accumulation_steps: 2 → 4
+#    - Maintains same effective batch size (512)
+#    - More gradient accumulation = fewer optimizer steps
+#    - Compensates for smaller batch size
+#
+# EXPECTED PERFORMANCE:
+#   Before: 2.88 it/s, 45 min/epoch, 37.5 hours total
+#   After:  10-15 it/s, 8-13 min/epoch, 7-11 hours total
+#   Improvement: 5x faster!
+
+# ============================================================================
+# ADDITIONAL OPTIMIZATIONS TO CONSIDER
+# ============================================================================
+
+# If still slow after this, try:
+#
+# 1. Copy HDF5 to local /tmp:
+#    cp methylation_dataset_chr1.h5 /tmp/
+#    hdf5_path: "/tmp/methylation_dataset_chr1.h5"
+#    (Only if HDF5 is on network filesystem)
+#
+# 2. Reduce batch size further:
+#    batch_size: 64
+#    gradient_accumulation_steps: 8
+#    (Smaller batches load faster)
+#
+# 3. Use subset for testing:
+#    max_steps_per_epoch: 1000
+#    (Quick debugging iterations)
+#
+# 4. Check if HDF5 is on slow storage:
+#    ls -lh /home/chattopa/.../methylation_dataset_chr1.h5
+#    df -h /home/chattopa/...
+#    (Should be on local SSD, not NFS/network)
+
+# ============================================================================
+# SLURM JOB SCRIPT UPDATES
+# ============================================================================
+
+# Also update your submit_training.sh:
+#
+# #SBATCH --cpus-per-task=16  # ← REDUCE from 32
+# #SBATCH --mem=128G          # ← Keep same (or reduce to 64G)
+#
+# Why reduce CPUs:
+#   - You only need 8 workers now
+#   - Each worker needs ~2 CPUs
+#   - 8 workers × 2 CPUs = 16 CPUs total
+#   - Extra CPUs won't help and may cause contention
+
+# ============================================================================
+# VERIFICATION
+# ============================================================================
+
+# After starting training, check speed:
+#   tail -f logs/slurm_*.out
+#
+# Look for:
+#   Epoch 1/50: X%|...| 100/7786 [00:XX<XX:XX, XX.XX it/s]
+#                                              ^^^^^^^^^
+#                                          Should be 10-15 it/s
+#
+# If still slow (<5 it/s), the HDF5 file is probably on slow storage.

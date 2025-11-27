@@ -70,9 +70,12 @@ def compute_metrics(predictions, targets, probs, num_classes=22):
     top3_preds = np.argsort(probs, axis=1)[:, -3:]
     top3_acc = np.mean([targets[i] in top3_preds[i] for i in range(len(targets))])
     
-    # Per-class metrics
+    # Per-class metrics for ALL classes (sklearn handles missing classes with zero_division)
     precision, recall, f1, support = precision_recall_fscore_support(
-        targets, predictions, average=None, zero_division=0
+        targets, predictions, 
+        labels=list(range(num_classes)),  # All 22 classes
+        average=None, 
+        zero_division=0  # Missing classes get 0.0
     )
     
     # Macro and weighted averages
@@ -84,13 +87,19 @@ def compute_metrics(predictions, targets, probs, num_classes=22):
         targets, predictions, average='weighted', zero_division=0
     )
     
-    # Confusion matrix
+    # Confusion matrix (for all classes)
     cm = confusion_matrix(targets, predictions, labels=list(range(num_classes)))
     
-    # Per-class accuracy
-    per_class_acc = cm.diagonal() / cm.sum(axis=1).clip(min=1e-9)
+    # Per-class accuracy from confusion matrix
+    per_class_acc = np.zeros(num_classes)
+    for i in range(num_classes):
+        if cm[i].sum() > 0:
+            per_class_acc[i] = cm[i, i] / cm[i].sum()
+        else:
+            per_class_acc[i] = 0.0
     
     # Organize metrics
+    # precision, recall, f1, support are already length-22 arrays
     metrics = {
         # Overall metrics
         'accuracy': accuracy,
@@ -102,11 +111,11 @@ def compute_metrics(predictions, targets, probs, num_classes=22):
         'weighted_recall': weighted_recall,
         'weighted_f1': weighted_f1,
         
-        # Per-class metrics (as dictionaries)
-        'per_class_accuracy': {i: per_class_acc[i] for i in range(num_classes)},
-        'per_class_precision': {i: precision[i] for i in range(num_classes)},
-        'per_class_recall': {i: recall[i] for i in range(num_classes)},
-        'per_class_f1': {i: f1[i] for i in range(num_classes)},
+        # Per-class metrics (as dictionaries with all 22 classes)
+        'per_class_accuracy': {i: float(per_class_acc[i]) for i in range(num_classes)},
+        'per_class_precision': {i: float(precision[i]) for i in range(num_classes)},
+        'per_class_recall': {i: float(recall[i]) for i in range(num_classes)},
+        'per_class_f1': {i: float(f1[i]) for i in range(num_classes)},
         'per_class_support': {i: int(support[i]) for i in range(num_classes)},
         
         # Confusion matrix

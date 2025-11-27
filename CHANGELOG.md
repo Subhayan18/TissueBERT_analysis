@@ -93,3 +93,34 @@
 - Found: step_3_model_training/submit_training.sh
 - Found: step_3_model_training/train.py
 - Found: step_3_model_training/utils.py
+
+## [2025-11-27 12:00:40] Auto Commit
+
+- Found: README.md
+- Found: step_3_model_training/FILE_MANIFEST.txt
+- Found: step_3_model_training/QUICK_REFERENCE.md
+- Found: step_3_model_training/README.md
+- Found: step_3_model_training/README_TRAINING.md
+- Found: step_3_model_training/SETUP_GUIDE.md
+- Found: step_3_model_training/__pycache__/utils.cpython-311.pyc
+- Found: step_3_model_training/analyze_results.py
+- Found: step_3_model_training/config_100epoch.yaml
+- Found: step_3_model_training/config_20epoch.yaml
+- Found: step_3_model_training/config_50epoch.yaml
+- Found: step_3_model_training/model.py
+- Found: step_3_model_training/submit_training.sh
+- Found: step_3_model_training/train.py
+- Found: step_3_model_training/utils.py
+- Found: step_4_validation_testing/README.md
+- Found: step_5_clinical_application/README.md
+- Found: step_3_model_training/__pycache__/dataloader_filelevel.cpython-311.pyc
+- Found: step_3_model_training/__pycache__/methylation_model.cpython-311.pyc
+- Found: step_3_model_training/__pycache__/model_methylation_aggregation.cpython-311.pyc
+- Found: step_3_model_training/__pycache__/model_methylation_only.cpython-311.pyc
+- Found: step_3_model_training/cancel_on_start.sh
+- Found: step_3_model_training/chr1_cnn_attention_model/
+- Found: step_3_model_training/chr1_debug_file_creation/
+- Found: step_3_model_training/chr1_logistic/
+- Found: step_3_model_training/chr1_methylation_aggregation/
+- Found: step_3_model_training/full_methylation_aggregation/
+- Found: step_3_model_training/full_per_region_model_buggy/

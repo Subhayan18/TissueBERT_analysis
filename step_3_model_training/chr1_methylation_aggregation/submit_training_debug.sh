@@ -1,19 +1,17 @@
 #!/bin/bash
-#SBATCH --job-name=tissuebert_train
-#SBATCH --partition=gpua100
+#SBATCH --job-name=TB_debug
+#SBATCH --partition=gpua100i
 #SBATCH --gres=gpu:a100:1
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=12
-#SBATCH --mem=64G
+#SBATCH --cpus-per-task=32
+#SBATCH --mem=100G
 #SBATCH --time=120:00:00
 #SBATCH --output=/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_results/logs/slurm_%j.out
 #SBATCH --error=/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_results/logs/slurm_%j.err
-#SBATCH --mail-type=END,FAIL
-#SBATCH --mail-user=subhayan.chattopadhyay@med.lu.se
 
 ################################################################################
-# TissueBERT Training Job
+# TissueBERT Training Debugging Job
 # 
 # This script trains the TissueBERT model for tissue classification
 # from DNA methylation patterns
@@ -37,7 +35,7 @@ echo "============================================================"
 
 # Configuration
 CONFIG_FILE=${1:-"config_20epoch.yaml"}
-WORK_DIR="/home/chattopa/data_storage/TissueBERT_analysis/step_3_model_training"
+WORK_DIR="/home/chattopa/data_storage/TissueBERT_analysis/step_3_model_training/chr1_methylation_aggregation"
 
 echo ""
 echo "Configuration:"
@@ -121,8 +119,8 @@ else
     echo ""
     echo "Training failed with exit code $EXIT_CODE"
     echo "Check logs for details:"
-    echo "  stdout: /home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_results/logs/slurm_${SLURM_JOB_ID}.out"
-    echo "  stderr: /home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_results/logs/slurm_${SLURM_JOB_ID}.err"
+    echo "  stdout: /home/chattopa/data_storage/MethAtlas_WGBSanalysis/chr1_fast_results/logs/slurm_${SLURM_JOB_ID}.out"
+    echo "  stderr: /home/chattopa/data_storage/MethAtlas_WGBSanalysis/chr1_fast_results/logs/slurm_${SLURM_JOB_ID}.err"
 fi
 
 exit $EXIT_CODE

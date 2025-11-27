@@ -1,0 +1,111 @@
+# FULL GENOME Configuration
+# Optimized for 40GB GPU memory with 51,089 regions per file
+
+# Paths configuration
+paths:
+  results_dir: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/fullgenome_results"
+  checkpoint_dir: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/fullgenome_results/checkpoints"
+  log_dir: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/fullgenome_results/logs"
+
+# Data paths - ALL CHROMOSOMES
+data:
+  hdf5_path: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/methylation_dataset_fullgenome.h5"
+  train_csv: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/fullgenome_subset/train_files.csv"
+  val_csv: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/fullgenome_subset/val_files.csv"
+  test_csv: "/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/fullgenome_subset/test_files.csv"
+
+# Model configuration
+model:
+  vocab_size: 69
+  hidden_size: 512
+  num_layers: 6
+  num_attention_heads: 8
+  intermediate_size: 2048
+  max_seq_length: 150
+  num_classes: 22
+  dropout: 0.1
+
+# Training configuration - OPTIMIZED FOR 40GB GPU + 51K REGIONS
+training:
+  num_epochs: 50
+  batch_size: 4  # REDUCED for memory (51k regions vs 4.4k in chr1)
+  gradient_accumulation_steps: 8  # INCREASED (effective batch=32)
+  
+  num_workers: 12  # REDUCED (24 cores / 2)
+  
+  cpg_dropout_rate: 0.05
+  max_grad_norm: 1.0
+  save_interval: 5
+  max_resume_count: 5
+  max_steps_per_epoch: null  # Train full epochs
+  max_val_steps: 100
+  validation_frequency: 5
+
+# Optimizer configuration
+optimizer:
+  learning_rate: 1.0e-5
+  beta1: 0.9
+  beta2: 0.999
+  eps: 1.0e-8
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+
+# Loss configuration
+loss:
+  label_smoothing: 0.1
+
+# Logging configuration
+logging:
+  log_interval: 10
+  plot_interval: 5
+
+# ============================================================================
+# MEMORY CALCULATIONS FOR 40GB GPU
+# ============================================================================
+
+# Data size per sample:
+#   51,089 regions × 150 bp × 2 (dna + meth) × 1 byte = ~15.3 MB/sample
+#
+# Batch memory usage:
+#   batch_size=4:  4 × 15.3 MB = ~61 MB data
+#   batch_size=8:  8 × 15.3 MB = ~122 MB data
+#
+# Model memory (estimated):
+#   Parameters: ~5M × 4 bytes = 20 MB
+#   Activations: ~1-2 GB (depends on hidden_size)
+#   Optimizer states: ~2× parameters = 40 MB
+#   Gradient accumulation: ~8× gradients = 160 MB
+#
+# Total estimate for batch_size=4:
+#   Data: 61 MB
+#   Model: 20 MB
+#   Activations: 2 GB
+#   Optimizer: 40 MB
+#   Gradients: 160 MB
+#   Safety margin: 37.7 GB available
+#   ✓ SAFE for 40GB GPU
+
+# ============================================================================
+# TRAINING TIME ESTIMATES
+# ============================================================================
+
+# Compared to chr1:
+#   - 51,089 regions vs 4,381 (11.7× more)
+#   - batch_size=4 vs batch_size=8 (0.5× throughput)
+#   - Total slowdown: ~23× longer per epoch
+#
+# If chr1 took 6 seconds/epoch:
+#   Full genome: 6 × 23 = 138 seconds = 2.3 minutes/epoch
+#   50 epochs: 2.3 × 50 = 115 minutes = 1.9 hours
+#
+# This is acceptable!
+
+# ============================================================================
+# SLURM RESOURCE ALLOCATION
+# ============================================================================
+
+# Update submit_training_fullgenome.sh:
+#   #SBATCH --cpus-per-task=24  # 12 workers × 2 CPUs
+#   #SBATCH --mem=64G            # Data + overhead
+#   #SBATCH --gres=gpu:a100:1    # 40GB A100
+#   #SBATCH --time=6:00:00       # 2 hours + buffer

@@ -22,7 +22,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 import json
 
-# Add the step2.2 directory to path for dataloader import
+# Add the parent directory to path for dataloader import
 sys.path.append('/home/chattopa/data_storage/TissueBERT_analysis/step_2_model_architecture/step2.2')
 from dataset_dataloader import create_dataloaders
 
@@ -186,8 +186,11 @@ class Trainer:
             weight_decay=opt_config['weight_decay']
         )
         
-        # Calculate total steps
-        steps_per_epoch = len(self.train_loader) // train_config['gradient_accumulation_steps']
+        # Calculate total steps for scheduler
+        # CRITICAL: Use actual steps per epoch (with max_steps limit), not theoretical
+        max_steps_per_epoch = train_config.get('max_steps_per_epoch', len(self.train_loader))
+        actual_batches_per_epoch = min(max_steps_per_epoch, len(self.train_loader))
+        steps_per_epoch = actual_batches_per_epoch
         total_steps = steps_per_epoch * train_config['num_epochs']
         
         # Scheduler
@@ -233,10 +236,13 @@ class Trainer:
         loss_meter = AverageMeter()
         acc_meter = AverageMeter()
         
+        # Get max steps per epoch from config (default to full epoch if not specified)
+        max_steps = self.config['training'].get('max_steps_per_epoch', len(self.train_loader))
+        
         # Progress bar
         pbar = tqdm(
             enumerate(self.train_loader), 
-            total=len(self.train_loader),
+            total=min(max_steps, len(self.train_loader)),
             desc=f"Epoch {epoch}/{self.config['training']['num_epochs']}"
         )
         
@@ -245,6 +251,10 @@ class Trainer:
         self.optimizer.zero_grad()
         
         for batch_idx, batch in pbar:
+            # Stop if reached max steps for this epoch
+            if batch_idx >= max_steps:
+                print(f"\n✓ Reached max steps per epoch ({max_steps:,})")
+                break
             # Move to device
             dna_tokens = batch['dna_tokens'].to(self.device, non_blocking=True)
             methylation = batch['methylation'].to(self.device, non_blocking=True)
@@ -311,9 +321,20 @@ class Trainer:
         all_targets = []
         all_probs = []
         
-        pbar = tqdm(data_loader, desc=f"Validating ({split})")
+        # Limit validation steps (similar to training)
+        max_val_steps = self.config['training'].get('max_val_steps', len(data_loader))
         
-        for batch in pbar:
+        pbar = tqdm(
+            data_loader, 
+            total=min(max_val_steps, len(data_loader)),
+            desc=f"Validating ({split})"
+        )
+        
+        for batch_idx, batch in enumerate(pbar):
+            # Stop if reached max validation steps
+            if batch_idx >= max_val_steps:
+                print(f"\n✓ Reached max validation steps ({max_val_steps:,})")
+                break
             # Move to device
             dna_tokens = batch['dna_tokens'].to(self.device, non_blocking=True)
             methylation = batch['methylation'].to(self.device, non_blocking=True)
@@ -523,22 +544,35 @@ class Trainer:
             # Train one epoch
             train_loss, train_acc = self.train_epoch(epoch)
             
-            # Validate
-            val_loss, val_acc, val_metrics = self.validate(self.val_loader, split='val')
+            # Validate (only every N epochs if validation_frequency is set)
+            validation_frequency = self.config['training'].get('validation_frequency', 1)
+            should_validate = (epoch % validation_frequency == 0) or (epoch == num_epochs)
             
-            # Log results
-            self.log_epoch_results(epoch, train_loss, train_acc, val_loss, val_acc, val_metrics)
-            
-            # Save checkpoint
-            self.save_checkpoint_if_best(epoch, val_loss, val_acc, val_metrics)
-            
-            # Save confusion matrix
-            if epoch % self.config['logging']['plot_interval'] == 0:
-                plot_confusion_matrix(
-                    val_metrics['confusion_matrix'],
-                    save_path=self.results_dir / f'confusion_epoch_{epoch:03d}.png',
-                    num_classes=self.config['model']['num_classes']
-                )
+            if should_validate:
+                val_loss, val_acc, val_metrics = self.validate(self.val_loader, split='val')
+                
+                # Log results
+                self.log_epoch_results(epoch, train_loss, train_acc, val_loss, val_acc, val_metrics)
+                
+                # Save checkpoint
+                self.save_checkpoint_if_best(epoch, val_loss, val_acc, val_metrics)
+                
+                # Save confusion matrix
+                if epoch % self.config['logging']['plot_interval'] == 0:
+                    plot_confusion_matrix(
+                        val_metrics['confusion_matrix'],
+                        save_path=self.results_dir / f'confusion_epoch_{epoch:03d}.png',
+                        num_classes=self.config['model']['num_classes']
+                    )
+            else:
+                # Skipped validation - just log training metrics and save checkpoint
+                print(f"\nEpoch {epoch}/{num_epochs} Summary (validation skipped)")
+                print(f"  Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f}")
+                print(f"  (Validation will run at epoch {((epoch // validation_frequency) + 1) * validation_frequency})")
+                
+                # Save periodic checkpoint (every save_interval)
+                if epoch % self.config['training']['save_interval'] == 0:
+                    self.save_checkpoint(epoch, 0.0, 0.0, {})  # Dummy val metrics
         
         # Final evaluation on test set
         print("\n" + "="*80)
