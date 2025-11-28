@@ -12,3 +12,6 @@ Result/
 .DS_Store
 ._.DS_Store
 ._*
+/**/.*  # ignore all dotted files
+/**/.*/ # ignore all dotted folders
+!/.gitignore  # except `gitignore`

@@ -178,3 +178,20 @@
 - Found: step_3_model_training/.chr1_debug_file_creation/
 - Found: step_3_model_training/.chr1_logistic/
 - Found: step_3_model_training/.chr1_methylation_aggregation/
+
+## [2025-11-28 11:35:19] Auto Commit
+
+- Found: .gitignore
+- Found: step_3_model_training/.chr1_cnn_attention_model/IMPLEMENTATION_INSTRUCTIONS.txt
+- Found: step_3_model_training/.chr1_cnn_attention_model/__pycache__/dataloader_filelevel.cpython-311.pyc
+- Found: step_3_model_training/.chr1_cnn_attention_model/__pycache__/model_cnn_attention.cpython-311.pyc
+- Found: step_3_model_training/.chr1_cnn_attention_model/__pycache__/utils.cpython-311.pyc
+- Found: step_3_model_training/.chr1_cnn_attention_model/benchmark_models.py
+- Found: step_3_model_training/.chr1_cnn_attention_model/config_chr1_cnn_attention.yaml
+- Found: step_3_model_training/.chr1_cnn_attention_model/dataloader_filelevel.py
+- Found: step_3_model_training/.chr1_cnn_attention_model/model_cnn_attention.py
+- Found: step_3_model_training/.chr1_cnn_attention_model/submit_benchmark.sh
+- Found: step_3_model_training/.chr1_cnn_attention_model/submit_cnn_attention_training.sh
+- Found: step_3_model_training/.chr1_cnn_attention_model/train_cnn_attention.py
+- Found: step_3_model_training/.chr1_cnn_attention_model/utils.py
+- Found: step_3_model_training/.chr1_cnn_attention_model/
