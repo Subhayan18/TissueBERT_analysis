@@ -141,3 +141,40 @@
 ## [2025-11-28 11:14:35] Auto Commit
 
 - Found: step_4_mixture_augmentation/
+
+## [2025-11-28 11:19:13] Auto Commit
+
+- Found: step_3_model_training/chr1_cnn_attention_model/IMPLEMENTATION_INSTRUCTIONS.txt
+- Found: step_3_model_training/chr1_cnn_attention_model/__pycache__/dataloader_filelevel.cpython-311.pyc
+- Found: step_3_model_training/chr1_cnn_attention_model/__pycache__/model_cnn_attention.cpython-311.pyc
+- Found: step_3_model_training/chr1_cnn_attention_model/__pycache__/utils.cpython-311.pyc
+- Found: step_3_model_training/chr1_cnn_attention_model/benchmark_models.py
+- Found: step_3_model_training/chr1_cnn_attention_model/config_chr1_cnn_attention.yaml
+- Found: step_3_model_training/chr1_cnn_attention_model/dataloader_filelevel.py
+- Found: step_3_model_training/chr1_cnn_attention_model/model_cnn_attention.py
+- Found: step_3_model_training/chr1_cnn_attention_model/submit_benchmark.sh
+- Found: step_3_model_training/chr1_cnn_attention_model/submit_cnn_attention_training.sh
+- Found: step_3_model_training/chr1_cnn_attention_model/train_cnn_attention.py
+- Found: step_3_model_training/chr1_cnn_attention_model/utils.py
+- Found: step_3_model_training/chr1_debug_file_creation/create_chr1_subset.py
+- Found: step_3_model_training/chr1_debug_file_creation/inspect_hdf5_structure.py
+- Found: step_3_model_training/chr1_debug_file_creation/inspect_metadata.py
+- Found: step_3_model_training/chr1_logistic/logistic_chr1.py
+- Found: step_3_model_training/chr1_methylation_aggregation/DEBUGGING_SUMMARY_README.md
+- Found: step_3_model_training/chr1_methylation_aggregation/__pycache__/dataloader_filelevel.cpython-311.pyc
+- Found: step_3_model_training/chr1_methylation_aggregation/__pycache__/model_methylation_aggregation.cpython-311.pyc
+- Found: step_3_model_training/chr1_methylation_aggregation/__pycache__/utils.cpython-311.pyc
+- Found: step_3_model_training/chr1_methylation_aggregation/config_chr1_debug.yaml
+- Found: step_3_model_training/chr1_methylation_aggregation/dataloader_filelevel.py
+- Found: step_3_model_training/chr1_methylation_aggregation/diagnostic_1_variance_and_labels.py
+- Found: step_3_model_training/chr1_methylation_aggregation/diagnostic_2_augmetation_and_separability.py
+- Found: step_3_model_training/chr1_methylation_aggregation/model_methylation_aggregation.py
+- Found: step_3_model_training/chr1_methylation_aggregation/model_methylation_only.py
+- Found: step_3_model_training/chr1_methylation_aggregation/sanitycheck_overfit.py
+- Found: step_3_model_training/chr1_methylation_aggregation/submit_training_debug.sh
+- Found: step_3_model_training/chr1_methylation_aggregation/train.py
+- Found: step_3_model_training/chr1_methylation_aggregation/utils.py
+- Found: step_3_model_training/.chr1_cnn_attention_model/
+- Found: step_3_model_training/.chr1_debug_file_creation/
+- Found: step_3_model_training/.chr1_logistic/
+- Found: step_3_model_training/.chr1_methylation_aggregation/
