@@ -15,3 +15,7 @@ Result/
 /**/.*  # ignore all dotted files
 /**/.*/ # ignore all dotted folders
 !/.gitignore  # except `gitignore`
+step_3_model_training/.chr1_cnn_attention_model/
+step_3_model_training/.chr1_debug_file_creation/
+step_3_model_training/.chr1_methylation_aggregation/
+step_3_model_training/.chr1_logistic/
