@@ -1,0 +1,50 @@
+# Phase 2: 3-5 Tissue Mixture Deconvolution Training
+# =====================================================
+# Moderate complexity mixtures with multiple tissues
+
+data:
+  hdf5_path: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/methylation_dataset.h5'
+  metadata_csv: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/combined_metadata.csv'
+  validation_h5: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/mixture_data/phase2_validation_mixtures.h5'
+  test_h5: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/mixture_data/phase2_test_mixtures.h5'
+
+model:
+  n_regions: 51089
+  hidden_size: 512
+  num_classes: 22
+  dropout: 0.1
+  intermediate_size: 2048
+  # Load Phase 1 best checkpoint
+  pretrained_checkpoint: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/mixture_deconvolution_results/phase1_2tissue/checkpoints/checkpoint_best.pt'
+
+training:
+  num_epochs: 30
+  batch_size: 4
+  gradient_accumulation_steps: 32  # Effective batch size = 32
+  learning_rate: 2.0e-6  # Lower LR for continued fine-tuning
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  num_workers: 12
+  validation_frequency: 5
+  phase: 2
+  pure_sample_ratio: 0.2
+  mixtures_per_epoch: 5000  # More diverse mixtures
+
+optimizer:
+  type: 'AdamW'
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+
+scheduler:
+  type: 'cosine'
+
+loss:
+  type: 'mse'
+
+random_seed: 42
+
+output:
+  save_dir: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/mixture_deconvolution_results/phase2_multitissue'
+  log_every_n_steps: 50
+  save_best_model: true
+  save_last_model: true

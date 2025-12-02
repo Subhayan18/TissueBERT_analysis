@@ -1,0 +1,85 @@
+# Phase 2: 3-5 Tissue Mixture Deconvolution with Sparsity Regularization
+# ===========================================================================
+# Two-stage architecture with presence detection and sparsity constraints
+
+data:
+  hdf5_path: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/methylation_dataset.h5'
+  metadata_csv: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/combined_metadata.csv'
+  validation_h5: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/mixture_data/phase2_validation_mixtures.h5'
+  test_h5: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/mixture_data/phase2_test_mixtures.h5'
+
+model:
+  n_regions: 51089
+  hidden_size: 512
+  num_classes: 22
+  dropout: 0.1
+  intermediate_size: 2048
+  # Load Phase 1 best checkpoint
+  pretrained_checkpoint: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/mixture_deconvolution_results/phase1_2tissue/checkpoints/checkpoint_best.pt'
+  
+  # NEW: Two-stage sparse architecture parameters
+  use_two_stage: true               # Enable two-stage (presence + proportion)
+  presence_threshold: 0.5           # Threshold for binary presence (inference only)
+  sparsity_regularization: true     # Enable L1 sparsity penalty
+
+training:
+  num_epochs: 30
+  batch_size: 4
+  gradient_accumulation_steps: 32  # Effective batch size = 32
+  learning_rate: 2.0e-6            # Lower LR for continued fine-tuning
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  num_workers: 12
+  validation_frequency: 5
+  phase: 2
+  pure_sample_ratio: 0.2
+  mixtures_per_epoch: 5000         # More diverse mixtures
+  
+  # NEW: Sparsity training flag
+  sparsity_regularization: true
+
+optimizer:
+  type: 'AdamW'
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+
+scheduler:
+  type: 'cosine'
+
+loss:
+  type: 'two_stage_sparse'         # Changed from 'mse'
+  
+  # Loss component weights
+  mse_weight: 1.0                  # Weight for proportion MSE
+  presence_weight: 1.0             # NEW: Weight for presence BCE
+  sparsity_weight: 0.01            # NEW: Weight for L1 sparsity penalty
+  
+  # Presence threshold for ground truth labels
+  presence_threshold: 0.01         # NEW: Tissues ≥1% are "present"
+
+random_seed: 42
+
+output:
+  save_dir: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/mixture_deconvolution_results/phase2_sparse'
+  log_every_n_steps: 50
+  save_best_model: true
+  save_last_model: true
+
+# Hyperparameter tuning notes:
+# ==============================
+# 
+# presence_weight (default: 1.0):
+#   - Increase (2.0) if model doesn't enforce sparsity enough
+#   - Decrease (0.5) if model is too sparse (missing real tissues)
+#
+# sparsity_weight (default: 0.01):
+#   - Increase (0.05) for stronger sparsity (fewer predicted tissues)
+#   - Decrease (0.001) if model predicts too few tissues
+#
+# presence_threshold for labels (default: 0.01 = 1%):
+#   - Increase (0.02) to be more strict about what's "present"
+#   - Decrease (0.005) to detect very low-abundance tissues
+#
+# presence_threshold for inference (default: 0.5):
+#   - Increase (0.7) for more conservative predictions
+#   - Decrease (0.3) for more sensitive detection

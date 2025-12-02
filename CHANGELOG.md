@@ -215,3 +215,36 @@
 ## [2025-11-28 11:48:07] Auto Commit
 
 - Found: .gitignore
+
+## [2025-12-02 15:18:46] Auto Commit
+
+- Found: step_3_model_training/full_methylation_aggregation/visualization_dense_UMPA.py
+- Found: step_3_model_training/full_methylation_aggregation/visualization_model_performance.py
+- Found: step_4_mixture_augmentation/EVALUATION_GUIDE.md
+- Found: step_4_mixture_augmentation/IMPLEMENTATION_COMPLETE.md
+- Found: step_4_mixture_augmentation/README_PHASE2_SPARSE.md
+- Found: step_4_mixture_augmentation/STEP4_COMPLETE.md
+- Found: step_4_mixture_augmentation/__pycache__/
+- Found: step_4_mixture_augmentation/config_phase1_2tissue.yaml
+- Found: step_4_mixture_augmentation/config_phase2_multitissue.yaml
+- Found: step_4_mixture_augmentation/config_phase2_sparse.yaml
+- Found: step_4_mixture_augmentation/config_phase3_realistic.yaml
+- Found: step_4_mixture_augmentation/dataloader_mixture.py
+- Found: step_4_mixture_augmentation/diagnose_h5_tissue.py
+- Found: step_4_mixture_augmentation/evaluate_deconvolution.py
+- Found: step_4_mixture_augmentation/evaluate_phase1.sh
+- Found: step_4_mixture_augmentation/evaluate_phase2.sh
+- Found: step_4_mixture_augmentation/generate_mixture_datasets.py
+- Found: step_4_mixture_augmentation/generate_mixture_validation.py
+- Found: step_4_mixture_augmentation/model_deconvolution.py
+- Found: step_4_mixture_augmentation/model_deconvolution_sparse.py
+- Found: step_4_mixture_augmentation/submit_phase1.sh
+- Found: step_4_mixture_augmentation/submit_phase2.sh
+- Found: step_4_mixture_augmentation/submit_phase2_sparse.sh
+- Found: step_4_mixture_augmentation/submit_phase3.sh
+- Found: step_4_mixture_augmentation/test_deconvolution_model.py
+- Found: step_4_mixture_augmentation/train_deconvolution.py
+- Found: step_4_mixture_augmentation/train_deconvolution_sparse.py
+- Found: step_4_mixture_augmentation/validate_mixing_assumption.py
+- Found: step_4_mixture_augmentation/validation_mixing.report
+- Found: step_4_mixture_augmentation/visualize_mixture_miami.py

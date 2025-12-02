@@ -1,0 +1,194 @@
+================================================================================
+MIXTURE VALIDATION: Testing Linear Mixing Assumption
+================================================================================
+
+STEP 1: Loading data and selecting samples...
+✓ Loaded metadata: 765 samples
+✓ Found 22 unique tissues: Adipocytes, Aorta, Bladder, Blood, Bone, Cerebellum, Colon, Coronary, Cortex, Dermal, Epidermal, Gastric, Heart, Kidney, Liver, Lung, Neuron, Oligodendrocytes, Pancreas, Prostate, Skeletal, Small
+✓ Selected test tissues: ['Blood', 'Liver', 'Lung', 'Neuron']
+  Blood: sample 465 (sample_067_Blood-T-CD3_aug0.npz)
+  Liver: sample 20 (sample_002_Liver-Endothelium_aug0.npz)
+  Lung: sample 175 (sample_016_Lung-Bronchus-Smooth-Muscle_aug0.npz)
+  Neuron: sample 240 (sample_029_Neuron_aug0.npz)
+✓ Selected 4 samples
+
+STEP 2: Loading methylation data and computing region means...
+✓ Opened HDF5 file: /home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/methylation_dataset.h5
+  Methylation shape: (765, 51089, 150)
+  Blood:
+    Valid CpGs: 241,481 / 7,663,350 (3.2%)
+    Mean methylation: 0.939
+    Region means range: [0.000, 1.000]
+  Liver:
+    Valid CpGs: 231,750 / 7,663,350 (3.0%)
+    Mean methylation: 0.919
+    Region means range: [0.000, 1.000]
+  Lung:
+    Valid CpGs: 228,613 / 7,663,350 (3.0%)
+    Mean methylation: 0.842
+    Region means range: [0.000, 1.000]
+  Neuron:
+    Valid CpGs: 241,951 / 7,663,350 (3.2%)
+    Mean methylation: 0.916
+    Region means range: [0.000, 1.000]
+
+STEP 3: Creating synthetic mixtures...
+  Created mixture: Blood_50-Liver_50
+  Created mixture: Blood_70-Liver_30
+  Created mixture: Blood_80-Liver_20
+  Created mixture: Blood_50-Lung_50
+  Created mixture: Blood_70-Lung_30
+  Created mixture: Blood_80-Lung_20
+  Created mixture: Blood_50-Neuron_50
+  Created mixture: Blood_70-Neuron_30
+  Created mixture: Blood_80-Neuron_20
+  Created mixture: Liver_50-Lung_50
+  Created mixture: Liver_70-Lung_30
+  Created mixture: Liver_80-Lung_20
+  Created mixture: Liver_50-Neuron_50
+  Created mixture: Liver_70-Neuron_30
+  Created mixture: Liver_80-Neuron_20
+  Created mixture: Lung_50-Neuron_50
+  Created mixture: Lung_70-Neuron_30
+  Created mixture: Lung_80-Neuron_20
+✓ Created 18 mixtures
+
+STEP 4: Validating linear mixing mathematically...
+  Testing Blood_50-Liver_50:
+    Max difference: 0.0000000000
+    Mean difference: 0.0000000000
+    ✓ Linear mixing verified! (within numerical precision)
+
+  Distance analysis:
+  Pairwise distances between pure tissues:
+    Blood <-> Liver: 62.67
+    Blood <-> Lung: 91.94
+    Blood <-> Neuron: 71.95
+    Liver <-> Lung: 85.34
+    Liver <-> Neuron: 75.77
+    Lung <-> Neuron: 90.28
+
+  50-50 mixture positioning:
+    Distance to Blood: 31.34
+    Distance to Liver: 31.34
+    Distance Blood-Liver: 62.67
+    Ratio (should be ~0.5): 0.500, 0.500
+
+Generating Figure 1: Heatmap of region means...
+  ✓ Saved: fig1_heatmap_region_means.png
+
+Generating Figure 2: Distribution of methylation values...
+  ✓ Saved: fig2_methylation_distributions.png
+
+Generating Figure 3: PCA visualization...
+  ✓ Saved: fig3_pca_visualization.png
+
+Generating Figure 4: Per-region methylation comparison...
+  ✓ Saved: fig4_region_level_mixing.png
+
+Generating Figure 5: Correlation matrix...
+  ✓ Saved: fig5_correlation_matrix.png
+
+Generating Figure 6: Current model predictions on pure vs mixed...
+  Loading pre-trained model...
+  Using device: cpu
+  ✓ Loaded model from: /home/chattopa/data_storage/MethAtlas_WGBSanalysis/fullgenome_results/checkpoints/checkpoint_best_acc.pt
+
+  Running predictions...
+    Pure Blood: Predicted class 3, Confidence: 0.880
+    Pure Liver: Predicted class 0, Confidence: 0.167
+    Pure Lung: Predicted class 15, Confidence: 0.237
+    Pure Neuron: Predicted class 16, Confidence: 0.986
+  ✓ Saved: fig6_model_confusion_test.png
+
+Generating Figure 7: Distance analysis...
+  ✓ Saved: fig7_distance_analysis.png
+
+================================================================================
+GENERATING SUMMARY REPORT
+================================================================================
+
+================================================================================
+MIXTURE VALIDATION REPORT
+Linear Mixing Assumption for Tissue Deconvolution
+================================================================================
+
+1. DATA SUMMARY
+--------------------------------------------------------------------------------
+Tissues tested: Blood, Liver, Lung, Neuron
+Number of pure samples: 4
+Number of mixtures generated: 18
+
+2. MATHEMATICAL VALIDATION
+--------------------------------------------------------------------------------
+Linear mixing verified: YES (max error < 1e-6)
+
+Pairwise distances between pure tissues:
+  Blood <-> Liver: 62.67
+  Blood <-> Lung: 91.94
+  Blood <-> Neuron: 71.95
+  Liver <-> Lung: 85.34
+  Liver <-> Neuron: 75.77
+  Lung <-> Neuron: 90.28
+
+3. MIXTURE POSITIONING ANALYSIS
+--------------------------------------------------------------------------------
+Mean positioning error: 0.0000
+Max positioning error: 0.0000
+✓ PASS: Mixtures are positioned correctly (error < 5%)
+
+4. MODEL CONFUSION TEST
+--------------------------------------------------------------------------------
+Pure tissue predictions:
+  Blood: Confidence = 0.880
+  Liver: Confidence = 0.167
+  Lung: Confidence = 0.237
+  Neuron: Confidence = 0.986
+
+Mixture predictions:
+  Mean confidence on mixtures: 0.392
+  Mean confidence on pure: 0.567
+  Confidence drop: 0.175
+✓ PASS: Model is confused by mixtures (lower confidence)
+
+5. CONCLUSIONS
+--------------------------------------------------------------------------------
+Key findings:
+
+1. Linear mixing is mathematically valid:
+   - Mixture = α*A + (1-α)*B holds within numerical precision
+   - Mixtures are positioned correctly between pure samples
+
+2. Mixed samples are distinguishable:
+   - PCA shows mixtures between pure samples
+   - Methylation distributions show intermediate patterns
+
+3. Current model validation:
+   ✓ Model shows lower confidence on mixtures
+   ✓ Validates need for mixture-specific training
+
+RECOMMENDATION: Linear mixing assumption is VALID
+                Proceed with mixture deconvolution pipeline
+
+================================================================================
+
+✓ Saved report: /home/chattopa/data_storage/MethAtlas_WGBSanalysis/mixing_validation_results/validation_report.txt
+
+================================================================================
+VALIDATION COMPLETE!
+================================================================================
+
+All results saved to: /home/chattopa/data_storage/MethAtlas_WGBSanalysis/mixing_validation_results
+
+Generated figures:
+  1. fig1_heatmap_region_means.png - Region-level methylation heatmap
+  2. fig2_methylation_distributions.png - Distribution comparison
+  3. fig3_pca_visualization.png - PCA with mixture positioning
+  4. fig4_region_level_mixing.png - Per-region mixing verification
+  5. fig5_correlation_matrix.png - Correlation analysis
+  6. fig6_model_confusion_test.png - Current model predictions
+  7. fig7_distance_analysis.png - Mixture positioning accuracy
+
+Summary report: validation_report.txt
+
+================================================================================

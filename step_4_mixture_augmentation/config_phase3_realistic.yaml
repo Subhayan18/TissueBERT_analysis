@@ -1,0 +1,50 @@
+# Phase 3: Realistic cfDNA Mixture Deconvolution Training
+# ==========================================================
+# Blood-dominant mixtures simulating cancer patient cfDNA
+
+data:
+  hdf5_path: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/methylation_dataset.h5'
+  metadata_csv: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/combined_metadata.csv'
+  validation_h5: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/mixture_data/phase3_validation_mixtures.h5'
+  test_h5: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/training_dataset/mixture_data/phase3_test_mixtures.h5'
+
+model:
+  n_regions: 51089
+  hidden_size: 512
+  num_classes: 22
+  dropout: 0.1
+  intermediate_size: 2048
+  # Load Phase 2 best checkpoint
+  pretrained_checkpoint: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/mixture_deconvolution_results/phase2_multitissue/checkpoints/checkpoint_best.pt'
+
+training:
+  num_epochs: 30
+  batch_size: 4
+  gradient_accumulation_steps: 8  # Effective batch size = 32
+  learning_rate: 2.0e-6  # Even lower LR for final fine-tuning
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  num_workers: 12
+  validation_frequency: 5
+  phase: 3
+  pure_sample_ratio: 0.1  # Only 10% pure, 90% realistic mixtures
+  mixtures_per_epoch: 7500  # Maximum diversity
+
+optimizer:
+  type: 'AdamW'
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+
+scheduler:
+  type: 'cosine'
+
+loss:
+  type: 'mse'
+
+random_seed: 42
+
+output:
+  save_dir: '/home/chattopa/data_storage/MethAtlas_WGBSanalysis/mixture_deconvolution_results/phase3_realistic'
+  log_every_n_steps: 50
+  save_best_model: true
+  save_last_model: true
