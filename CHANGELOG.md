@@ -273,3 +273,8 @@
 - Found: step_4_mixture_augmentation/model_deconvolution_backup.py
 - Found: step_4_mixture_augmentation/summary_stats.csv
 - Found: step_4_mixture_augmentation/visualize_mixture_miami_backup.py
+
+## [2025-12-03 13:50:58] Auto Commit
+
+- Found: step_4_mixture_augmentation/.sparse_phase2_no_improvement/README_PHASE2_SPARSE.md
+- Found: step_4_mixture_augmentation/.sparse_phase2_no_improvement/README.md
