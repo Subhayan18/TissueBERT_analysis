@@ -248,3 +248,28 @@
 - Found: step_4_mixture_augmentation/validate_mixing_assumption.py
 - Found: step_4_mixture_augmentation/validation_mixing.report
 - Found: step_4_mixture_augmentation/visualize_mixture_miami.py
+
+## [2025-12-03 13:49:37] Auto Commit
+
+- Found: step_4_mixture_augmentation/README_PHASE2_SPARSE.md
+- Found: step_4_mixture_augmentation/__pycache__/dataloader_mixture.cpython-311.pyc
+- Found: step_4_mixture_augmentation/__pycache__/model_deconvolution.cpython-311.pyc
+- Found: step_4_mixture_augmentation/__pycache__/model_deconvolution_sparse.cpython-311.pyc
+- Found: step_4_mixture_augmentation/config_phase2_sparse.yaml
+- Found: step_4_mixture_augmentation/evaluate_deconvolution.py
+- Found: step_4_mixture_augmentation/model_deconvolution.py
+- Found: step_4_mixture_augmentation/model_deconvolution_sparse.py
+- Found: step_4_mixture_augmentation/submit_phase2_sparse.sh
+- Found: step_4_mixture_augmentation/train_deconvolution_sparse.py
+- Found: step_4_mixture_augmentation/visualize_mixture_miami.py
+- Found: step_4_mixture_augmentation/.renormalization/
+- Found: step_4_mixture_augmentation/.sparse_phase2_no_improvement/
+- Found: step_4_mixture_augmentation/COMPLETE_SOLUTION_SUMMARY.md
+- Found: step_4_mixture_augmentation/POSTPROCESSING_WORKFLOW_GUIDE.md
+- Found: step_4_mixture_augmentation/__pycache__/model_deconvolution_updated.cpython-311.pyc
+- Found: step_4_mixture_augmentation/apply_renormalization_postprocess.py
+- Found: step_4_mixture_augmentation/evaluate_deconvolution_backup.py
+- Found: step_4_mixture_augmentation/miami_plot.png
+- Found: step_4_mixture_augmentation/model_deconvolution_backup.py
+- Found: step_4_mixture_augmentation/summary_stats.csv
+- Found: step_4_mixture_augmentation/visualize_mixture_miami_backup.py

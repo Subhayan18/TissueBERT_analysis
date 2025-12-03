@@ -29,8 +29,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 
-def load_model_and_predict(checkpoint_path, test_h5_path, device='cuda',
-                          apply_renorm=False, renorm_strategy='threshold', threshold=0.05):
+def load_model_and_predict(checkpoint_path, test_h5_path, device='cuda'):
     """
     Load model from checkpoint and generate predictions on test set.
     
@@ -38,9 +37,6 @@ def load_model_and_predict(checkpoint_path, test_h5_path, device='cuda',
         checkpoint_path: Path to model checkpoint
         test_h5_path: Path to test HDF5 file
         device: Device to run inference on
-        apply_renorm: Whether to apply renormalization
-        renorm_strategy: Strategy for renormalization
-        threshold: Threshold value for renormalization
         
     Returns:
         true_props: [n_samples, n_tissues] array of true proportions
@@ -140,13 +136,6 @@ def load_model_and_predict(checkpoint_path, test_h5_path, device='cuda',
     
     print(f"Final methylation shape for inference: {methylation.shape}")
     
-    if apply_renorm:
-        print(f"\nRenormalization: ENABLED")
-        print(f"  Strategy: {renorm_strategy}")
-        print(f"  Threshold: {threshold}")
-    else:
-        print(f"\nRenormalization: DISABLED (raw predictions)")
-    
     # Run inference in batches
     batch_size = 32
     pred_props = []
@@ -155,15 +144,8 @@ def load_model_and_predict(checkpoint_path, test_h5_path, device='cuda',
         for i in range(0, n_samples, batch_size):
             batch_meth = methylation[i:i+batch_size].to(device)
             
-            # Model prediction with optional renormalization
-            if apply_renorm:
-                batch_pred = model(batch_meth,
-                                 apply_renorm=True,
-                                 renorm_strategy=renorm_strategy,
-                                 renorm_params={'threshold': threshold})
-            else:
-                batch_pred = model(batch_meth)
-            
+            # Model only takes methylation input
+            batch_pred = model(batch_meth)
             pred_props.append(batch_pred.cpu().numpy())
     
     pred_props = np.vstack(pred_props)
@@ -425,19 +407,14 @@ Examples:
                        help='Output path for Miami plot (default: miami_plot.png)')
     parser.add_argument('--summary', type=str, default='summary_stats.csv',
                        help='Output path for summary statistics CSV (default: summary_stats.csv)')
-    parser.add_argument('--device', type=str, required=True,
-                       choices=['cuda', 'cpu'],
-                       help='Device for inference: cuda or cpu (required)')
-    parser.add_argument('--renorm_strategy', type=str, required=True,
-                       help='Renormalization strategy: "threshold", "soft_threshold", "bayesian", or "NULL" for no renormalization')
-    parser.add_argument('--threshold', type=float, required=True,
-                       help='Threshold value for renormalization (e.g., 0.05 for 5%%), or 0.0 if renorm_strategy is NULL')
     parser.add_argument('--colors', type=str, default=None,
                        help='Comma-separated hex color codes (e.g., "#FF0000,#00FF00,#0000FF")')
     parser.add_argument('--min_proportion', type=float, default=0.01,
                        help='Minimum proportion threshold (default: 0.01 = 1%%)')
     parser.add_argument('--figsize', type=str, default='20,10',
                        help='Figure size as "width,height" (default: "20,10")')
+    parser.add_argument('--device', type=str, default='cuda',
+                       help='Device for inference: cuda or cpu (default: cuda)')
     
     args = parser.parse_args()
     
@@ -450,24 +427,9 @@ Examples:
     # Parse figsize
     figsize = tuple(map(float, args.figsize.split(',')))
     
-    # Determine if renormalization should be applied
-    apply_renorm = (args.renorm_strategy.upper() != 'NULL')
-    
-    print(f"\n{'='*60}")
-    print("MIAMI PLOT VISUALIZATION")
-    print(f"{'='*60}")
-    print(f"Device: {args.device}")
-    print(f"Renormalization: {args.renorm_strategy}")
-    if apply_renorm:
-        print(f"Threshold: {args.threshold}")
-    else:
-        print(f"Threshold: Not applicable (no renormalization)")
-    
     # Load model and generate predictions
     true_props, pred_props, tissue_names, sample_ids = load_model_and_predict(
-        args.checkpoint, args.test_h5, device=args.device,
-        apply_renorm=apply_renorm, renorm_strategy=args.renorm_strategy,
-        threshold=args.threshold
+        args.checkpoint, args.test_h5, device=args.device
     )
     
     # Generate Miami plot

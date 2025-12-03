@@ -51,7 +51,7 @@ loss:
   
   # Loss component weights
   mse_weight: 1.0                  # Weight for proportion MSE
-  presence_weight: 1.0             # NEW: Weight for presence BCE
+  presence_weight: 5.0             # NEW: Weight for presence BCE
   sparsity_weight: 0.01            # NEW: Weight for L1 sparsity penalty
   
   # Presence threshold for ground truth labels

@@ -84,19 +84,11 @@ def load_model_and_data(checkpoint_path, test_h5, device='cuda'):
     return model, mixed_methylation, true_proportions, tissue_names, phase, mixture_info
 
 
-def run_inference(model, mixed_methylation, device='cuda', batch_size=32,
-                 apply_renorm=False, renorm_strategy='threshold', threshold=0.05):
-    """Run inference on test data with optional renormalization"""
+def run_inference(model, mixed_methylation, device='cuda', batch_size=32):
+    """Run inference on test data"""
     print(f"\n{'='*80}")
     print("RUNNING INFERENCE")
     print(f"{'='*80}")
-    
-    if apply_renorm:
-        print(f"Renormalization: ENABLED")
-        print(f"  Strategy: {renorm_strategy}")
-        print(f"  Threshold: {threshold}")
-    else:
-        print(f"Renormalization: DISABLED (raw predictions)")
     
     n_samples = len(mixed_methylation)
     seq_length = 150
@@ -115,14 +107,8 @@ def run_inference(model, mixed_methylation, device='cuda', batch_size=32,
             # Convert to tensor
             batch_tensor = torch.tensor(batch_meth, dtype=torch.float32).to(device)
             
-            # Predict with optional renormalization
-            if apply_renorm:
-                proportions = model(batch_tensor, 
-                                  apply_renorm=True,
-                                  renorm_strategy=renorm_strategy,
-                                  renorm_params={'threshold': threshold})
-            else:
-                proportions = model(batch_tensor)
+            # Predict
+            proportions = model(batch_tensor)
             
             all_predictions.append(proportions.cpu().numpy())
             
@@ -938,13 +924,9 @@ def main():
                        help='Path to test mixture HDF5 file')
     parser.add_argument('--output_dir', type=str, required=True,
                        help='Output directory for results')
-    parser.add_argument('--device', type=str, required=True,
+    parser.add_argument('--device', type=str, default='cuda',
                        choices=['cuda', 'cpu'],
-                       help='Device to use for inference (required: cuda or cpu)')
-    parser.add_argument('--renorm_strategy', type=str, required=True,
-                       help='Renormalization strategy: "threshold", "soft_threshold", "bayesian", or "NULL" for no renormalization')
-    parser.add_argument('--threshold', type=float, required=True,
-                       help='Threshold value for renormalization (e.g., 0.05 for 5%%), or 0.0 if renorm_strategy is NULL')
+                       help='Device to use for inference')
     parser.add_argument('--batch_size', type=int, default=32,
                        help='Batch size for inference')
     
@@ -954,9 +936,6 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Determine if renormalization should be applied
-    apply_renorm = (args.renorm_strategy.upper() != 'NULL')
-    
     print("="*80)
     print("COMPREHENSIVE MIXTURE DECONVOLUTION EVALUATION")
     print("="*80)
@@ -964,19 +943,13 @@ def main():
     print(f"Test data: {args.test_h5}")
     print(f"Output: {args.output_dir}")
     print(f"Device: {args.device}")
-    print(f"Renormalization: {args.renorm_strategy}")
-    if apply_renorm:
-        print(f"Threshold: {args.threshold}")
-    else:
-        print(f"Threshold: Not applicable (no renormalization)")
     
     # Load model and data
     model, mixed_methylation, true_proportions, tissue_names, phase, mixture_info = \
         load_model_and_data(args.checkpoint, args.test_h5, args.device)
     
     # Run inference
-    predictions = run_inference(model, mixed_methylation, args.device, args.batch_size,
-                               apply_renorm, args.renorm_strategy, args.threshold)
+    predictions = run_inference(model, mixed_methylation, args.device, args.batch_size)
     
     # Compute metrics
     metrics, per_sample_mae = compute_overall_metrics(predictions, true_proportions)

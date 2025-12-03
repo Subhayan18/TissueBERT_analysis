@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=phase2_sparse
-#SBATCH --partition=gpua100i
+#SBATCH --partition=gpua100
 #SBATCH --gres=gpu:a100:1
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
