@@ -1,0 +1,46 @@
+======================================================================
+TISSUE DECONVOLUTION REPORT
+======================================================================
+Sample ID: L02_191202_S6
+Analysis Date: 2026-01-08 14:27:55
+
+Sample Quality Metrics:
+  Methylation rate: 95.86%
+  Missing data: 8.39%
+
+Predicted Tissue Proportions:
+----------------------------------------------------------------------
+Tissue                         Proportion      Percentage
+----------------------------------------------------------------------
+Blood                          0.2912           29.12%
+Liver                          0.2012           20.12%
+Colon                          0.1630           16.30%
+Bone                           0.0533            5.33%
+Adipocytes                     0.0397            3.97%
+Coronary                       0.0253            2.53%
+Cortex                         0.0210            2.10%
+Kidney                         0.0208            2.08%
+Lung                           0.0205            2.05%
+Gastric                        0.0201            2.01%
+Bladder                        0.0181            1.81%
+Neuron                         0.0152            1.52%
+Cerebellum                     0.0139            1.39%
+Small                          0.0136            1.36%
+Skeletal                       0.0132            1.32%
+Pancreas                       0.0131            1.31%
+Aorta                          0.0125            1.25%
+Oligodendrocytes               0.0119            1.19%
+Heart                          0.0108            1.08%
+----------------------------------------------------------------------
+TOTAL                          1.0000          100.00%
+
+Clinical Alerts:
+----------------------------------------------------------------------
+  ⚠️  Elevated Liver: 20.12%
+      → Consider enhanced surveillance for liver metastasis
+  ⚠️  Elevated Colon: 16.30%
+      → Consider enhanced surveillance for colon metastasis
+  ⚠️  Elevated Bone: 5.33%
+      → Consider enhanced surveillance for bone metastasis
+
+======================================================================

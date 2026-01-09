@@ -1,0 +1,45 @@
+======================================================================
+TISSUE DECONVOLUTION REPORT
+======================================================================
+Sample ID: M47_210924_30_S32
+Analysis Date: 2026-01-08 14:27:55
+
+Sample Quality Metrics:
+  Methylation rate: 97.48%
+  Missing data: 7.98%
+
+Predicted Tissue Proportions:
+----------------------------------------------------------------------
+Tissue                         Proportion      Percentage
+----------------------------------------------------------------------
+Liver                          0.5070           50.70%
+Neuron                         0.0731            7.31%
+Lung                           0.0708            7.08%
+Oligodendrocytes               0.0455            4.55%
+Coronary                       0.0352            3.52%
+Blood                          0.0337            3.37%
+Kidney                         0.0268            2.68%
+Bone                           0.0260            2.60%
+Cerebellum                     0.0242            2.42%
+Skeletal                       0.0207            2.07%
+Small                          0.0194            1.94%
+Pancreas                       0.0166            1.66%
+Gastric                        0.0158            1.58%
+Adipocytes                     0.0138            1.38%
+Colon                          0.0131            1.31%
+Dermal                         0.0127            1.27%
+Bladder                        0.0125            1.25%
+Cortex                         0.0120            1.20%
+----------------------------------------------------------------------
+TOTAL                          1.0000          100.00%
+
+Clinical Alerts:
+----------------------------------------------------------------------
+  ⚠️  Elevated Liver: 50.70%
+      → Consider enhanced surveillance for liver metastasis
+  ⚠️  Elevated Neuron: 7.31%
+      → Consider enhanced surveillance for neuron metastasis
+  ⚠️  Elevated Lung: 7.08%
+      → Consider enhanced surveillance for lung metastasis
+
+======================================================================

@@ -1,0 +1,44 @@
+======================================================================
+TISSUE DECONVOLUTION REPORT
+======================================================================
+Sample ID: M47_210924_S30
+Analysis Date: 2026-01-08 14:27:55
+
+Sample Quality Metrics:
+  Methylation rate: 97.50%
+  Missing data: 8.12%
+
+Predicted Tissue Proportions:
+----------------------------------------------------------------------
+Tissue                         Proportion      Percentage
+----------------------------------------------------------------------
+Liver                          0.5506           55.06%
+Neuron                         0.0636            6.36%
+Lung                           0.0590            5.90%
+Coronary                       0.0442            4.42%
+Oligodendrocytes               0.0379            3.79%
+Blood                          0.0296            2.96%
+Small                          0.0274            2.74%
+Kidney                         0.0253            2.53%
+Adipocytes                     0.0185            1.85%
+Dermal                         0.0179            1.79%
+Bone                           0.0165            1.65%
+Cerebellum                     0.0157            1.57%
+Skeletal                       0.0156            1.56%
+Pancreas                       0.0141            1.41%
+Colon                          0.0125            1.25%
+Bladder                        0.0114            1.14%
+Cortex                         0.0113            1.13%
+----------------------------------------------------------------------
+TOTAL                          1.0000          100.00%
+
+Clinical Alerts:
+----------------------------------------------------------------------
+  ⚠️  Elevated Liver: 55.06%
+      → Consider enhanced surveillance for liver metastasis
+  ⚠️  Elevated Neuron: 6.36%
+      → Consider enhanced surveillance for neuron metastasis
+  ⚠️  Elevated Lung: 5.90%
+      → Consider enhanced surveillance for lung metastasis
+
+======================================================================

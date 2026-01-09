@@ -1,0 +1,41 @@
+======================================================================
+TISSUE DECONVOLUTION REPORT
+======================================================================
+Sample ID: L02_200107_S7
+Analysis Date: 2026-01-08 14:27:55
+
+Sample Quality Metrics:
+  Methylation rate: 95.28%
+  Missing data: 8.36%
+
+Predicted Tissue Proportions:
+----------------------------------------------------------------------
+Tissue                         Proportion      Percentage
+----------------------------------------------------------------------
+Blood                          0.3717           37.17%
+Liver                          0.2336           23.36%
+Colon                          0.1418           14.18%
+Bone                           0.0323            3.23%
+Adipocytes                     0.0318            3.18%
+Coronary                       0.0207            2.07%
+Gastric                        0.0182            1.82%
+Neuron                         0.0144            1.44%
+Bladder                        0.0128            1.28%
+Aorta                          0.0127            1.27%
+Pancreas                       0.0118            1.18%
+Skeletal                       0.0117            1.17%
+Kidney                         0.0117            1.17%
+Oligodendrocytes               0.0113            1.13%
+Cerebellum                     0.0103            1.03%
+Small                          0.0103            1.03%
+----------------------------------------------------------------------
+TOTAL                          1.0000          100.00%
+
+Clinical Alerts:
+----------------------------------------------------------------------
+  ⚠️  Elevated Liver: 23.36%
+      → Consider enhanced surveillance for liver metastasis
+  ⚠️  Elevated Colon: 14.18%
+      → Consider enhanced surveillance for colon metastasis
+
+======================================================================
